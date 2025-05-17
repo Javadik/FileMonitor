@@ -70,28 +70,38 @@ namespace FileMonitor
             return list;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        public int checkAudio()
         {
-
+            int count = 0;
             curList = GetFilesinXML(xmlFile);
             if (curList.Count() != 0)
             {
-                if (!audioList.Intersect(curList).Any()) //if not all curList in audioList
+                //if (!audioList.Intersect(curList).Any()) //if not all curList in audioList
+                if (!audioList.Any(item => curList.Contains(item)))  //if not all curList in audioList
                 {
 
-                    foreach (var file in curList) {
+                    foreach (var file in curList)
+                    {
                         if (!audioList.Contains(file))
                         {
                             if (File.Exists(file))
                             {
                                 File.Copy(file, audioPath + Path.GetFileName(file), true);
                                 audioList.Add(file);
+                                count++;
                             }
                             else { richTextBox1.AppendText($"такого файла не существует: {file}"); }
                         }
                     }
                 }
             }
+            return count;
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            checkAudio();
+
+
         }
 
         private void FileMonitor_Load(object sender, EventArgs e)
