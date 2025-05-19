@@ -1,112 +1,91 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+
+//using System.Threading;
+//using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileMonitor
 {
     public partial class FileMonitor : Form
     {
-        string monitorDir = "E:\\testFiles";//@"\\192.168.1.72\1hdplay\files";
-        string xmlFile = "C:\\Users\\VadimR\\GoogleD_VCh\\Prog\\FileMonitor\\cur_playing.xml";  // "C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing.xml";
-        string audioPath = "E:\\testFiles3\\";
-        Thread loggerThread;
-        Logger logger;
-        List<string> curList;
-        List<string> audioList = new List<string>();
+        //Thread loggerThread;
+        LoggerFile loggerFile;
+        private System.Windows.Forms.Timer timer1;
+
+        private string lfCarPlay;//loggerFile CarPlay file "E:\\testFilesX\\cur_playing.xml"
+        private string lfCopyPath;//loggerFile  CopyPath   "E:\\testFiles3\\"
         public FileMonitor()
         {
             InitializeComponent();
 
-            logger = new Logger(monitorDir);
-            loggerThread = new Thread(new ThreadStart(logger.Start));
-            loggerThread.Start();
+            // Инициализация таймеров (изначально остановлены)
             
 
+            timer1 = new System.Windows.Forms.Timer();
+            timer1.Interval = 10000; // 10 сек
+            timer1.Tick += (s, e) => CheckList();
 
+            cblfCopy.Text = "E:\\testFiles3\\";
+            cbCurplay.Text = "E:\\testFilesX\\cur_playing.xml";
+        }
+
+        private void CheckList()
+        {
+            if (loggerFile.richList.Count > 0)
+            {
+                richTextBox1.AppendText(string.Join("\n", loggerFile.richList) + "\n");
+                loggerFile.richList.Clear();
+            }
         }
 
         private void btStart_Click(object sender, EventArgs e)
         {
-            logger.Start();
+            lfCopyPath = cblfCopy.Text;
+            lfCarPlay = cbCurplay.Text;
+            if (!LoggerFile.FileCheck(lfCarPlay))
+            {
+                //richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' ");
+                richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' ");
+                return;
+            }
+            if (!LoggerFile.PathCheck(ref lfCopyPath))
+            {
+                richTextBox1.AppendText($"проверьте '{lblfCopy.Text}' : '{cblfCopy.Text}' ");
+                return;
+            }
+            cblfCopy.Text = lfCopyPath;
+            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, 10000, 2);
+            loggerFile.Start();
             splitContainer1.Panel1.Enabled = false;
+            timer1.Start();
         }
 
         private void btStop_Click(object sender, EventArgs e)
         {
-            logger.Stop();
+            
+            loggerFile?.Stop();
             splitContainer1.Panel1.Enabled = true;
-            Thread.Sleep(1000);
+            timer1.Stop();
         }
 
-        public List<string> GetFilesinXML(String fl)
-        {
-            string pattern = @"<FILE_NAME>(.*?)<\/FILE_NAME>";
-            string input;
-            List<string> list = new List<string>();
-            var fs = new FileStream(fl, FileMode.Open, FileAccess.Read,
-                                      FileShare.ReadWrite | FileShare.Delete);
-            using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
-            {
-                input = reader.ReadToEnd();
-            }
+        
 
-            var regex = new Regex(pattern);
-            var matches = regex.Matches(input);
-        // System.Console.WriteLine(match.Groups[1].Value);
-            for (int i = 0; i < matches.Count; i++)
-            {
-                string st = matches[i].Groups[1].Value;
-                list.Add(st);
-            }
-            return list;
-        }
-
-        public int checkAudio()
-        {
-            int count = 0;
-            curList = GetFilesinXML(xmlFile);
-            if (curList.Count() != 0)
-            {
-                //if (!audioList.Intersect(curList).Any()) //if not all curList in audioList
-                if (!audioList.Any(item => curList.Contains(item)))  //if not all curList in audioList
-                {
-
-                    foreach (var file in curList)
-                    {
-                        if (!audioList.Contains(file))
-                        {
-                            if (File.Exists(file))
-                            {
-                                File.Copy(file, audioPath + Path.GetFileName(file), true);
-                                audioList.Add(file);
-                                count++;
-                            }
-                            else { richTextBox1.AppendText($"такого файла не существует: {file}"); }
-                        }
-                    }
-                }
-            }
-            return count;
-        }
+        
         private void button1_Click(object sender, EventArgs e)
         {
-            checkAudio();
+            loggerFile.SomeProc("изменен", "E:\\testFilesX\\cur_playing.xml");
 
 
         }
 
         private void FileMonitor_Load(object sender, EventArgs e)
         {
-            logger.Stop();
+           // logger.Stop();
+        }
+
+        private void cbCurplay_Validated(object sender, EventArgs e)
+        {
+            lfCarPlay= cbCurplay.Text;
         }
     }
 }

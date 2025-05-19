@@ -1,74 +1,213 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
-class Logger
+using System.Linq;
+
+namespace FileMonitor
 {
-    FileSystemWatcher watcher;
-    object obj = new object();
-    bool enabled = true;
-    string logfile = "..\\..\\templog.txt";//"e:\\templog.txt";
-    public Logger(String wDir)
+    class Logger
     {
-        watcher = new FileSystemWatcher(wDir);
-        watcher.Deleted += Watcher_Deleted;
-        watcher.Created += Watcher_Created;
-        watcher.Changed += Watcher_Changed;
-        watcher.Renamed += Watcher_Renamed;
-    }
+        public FileSystemWatcher watcher;
+        object obj = new object();
+#if DEBUG
+        public string pathLocal = "..\\..\\";
+#else
+        public string pathLocal = "";
+#endif
+        public string logfile { get; set; } //="..\\..\\templog.txt";//"e:\\templog.txt";
+                        //List<string> curList;
+                        // HashSet<string> curList = new HashSet<string>();
+        public HashSet<string> TotalList = new HashSet<string>();
+        public string PathCopy { get; set; } // директория куда копируется
+        public string wDir { get; set; }    // директория мониторинга
+        private bool changed = false;
+        private static System.Timers.Timer timer;
+        public int timerPeriod { get; set; } = 1000;
+        private int timeTimers = 0; //count
+        public int timeDoCopy { get; set; } = 5; //сколько timeTimers должно произойти, чтобы отработало  Copy
+        public List<string> richList { get; set; } = new List<string>();
+        private DateTime _lastReadTime = DateTime.MinValue;
 
-    public void Start()
-    {
-        watcher.EnableRaisingEvents = true;
-        while (enabled)
+
+        public Logger(string wDir_):this()
         {
-            Thread.Sleep(20000);
+            this.wDir = wDir_;
+            watcher.Path = wDir_; // Обновляем путь
+           
+            
         }
-    }
-    public void Stop()
-    {
-        watcher.EnableRaisingEvents = false;
-        enabled = false;
-    }
-    // переименование файлов
-    private void Watcher_Renamed(object sender, RenamedEventArgs e)
-    {
-        string fileEvent = "переименован в " + e.FullPath;
-        string filePath = e.OldFullPath;
-        RecordEntry(fileEvent, filePath);
-    }
-    // изменение файлов
-    private void Watcher_Changed(object sender, FileSystemEventArgs e)
-    {
-        string fileEvent = "изменен";
-        string filePath = e.FullPath;
-        RecordEntry(fileEvent, filePath);
-    }
-    // создание файлов
-    private void Watcher_Created(object sender, FileSystemEventArgs e)
-    {
-        string fileEvent = "создан";
-        string filePath = e.FullPath;
-        RecordEntry(fileEvent, filePath);
-    }
-    // удаление файлов
-    private void Watcher_Deleted(object sender, FileSystemEventArgs e)
-    {
-        string fileEvent = "удален";
-        string filePath = e.FullPath;
-        RecordEntry(fileEvent, filePath);
-    }
-
-    private void RecordEntry(string fileEvent, string filePath)
-    {
-        lock (obj)
+        public Logger()
         {
-            using (StreamWriter writer = new StreamWriter(logfile, true))
+            watcher = new FileSystemWatcher();
+            watcher.Deleted += Watcher_Deleted;
+            watcher.Created += Watcher_Created;
+            watcher.Changed += Watcher_Changed;
+            watcher.Renamed += Watcher_Renamed;
+            timer = new System.Timers.Timer(timerPeriod) { AutoReset = true, Enabled = false };
+            timer.Elapsed += (s, e) => TimerProc();
+        }
+
+        public void Start()
+        {
+            timer.Interval = timerPeriod;
+            watcher.EnableRaisingEvents = true;
+            timer.Enabled = true;
+        }
+        public void Stop()
+        {
+            watcher.EnableRaisingEvents = false;
+            timer.Enabled = false;
+            //enabled = false;
+        }
+        // переименование файлов
+        public void Watcher_Renamed(object sender, RenamedEventArgs e)
+        {
+            string fileEvent = pereim + e.FullPath;
+            string filePath = e.OldFullPath;
+            RecordEntry(fileEvent, filePath);
+        }
+        // изменение файлов
+        public void Watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            string fileEvent = "изменен";
+            string filePath = e.FullPath;
+            // Если с прошлого события прошло меньше 1 секунды — игнорируем
+            if ((DateTime.Now - _lastReadTime).TotalSeconds < 1)
+                return;
+
+            _lastReadTime = DateTime.Now;
+            Thread.Sleep(100);
+            RecordEntry(fileEvent, filePath);
+            
+        }
+        // создание файлов
+        public void Watcher_Created(object sender, FileSystemEventArgs e)
+        {
+            string fileEvent = "создан";
+            string filePath = e.FullPath;
+            RecordEntry(fileEvent, filePath);
+        }
+        // удаление файлов
+        public void Watcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            string fileEvent = "удален";
+            string filePath = e.FullPath;
+            RecordEntry(fileEvent, filePath);
+        }
+        const string pereim = "переименован в ";
+        private void RecordEntry(string fileEvent, string filePath)
+        {
+            lock (obj)
             {
-                writer.WriteLine(String.Format("{0} файл {1} был {2}",
-                    DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss"), filePath, fileEvent));
-                writer.Flush();
+                
+                using (StreamWriter writer = new StreamWriter(logfile, true))
+                {
+                    writer.WriteLine(String.Format("{0} файл {1} был {2}",
+                        DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss"), filePath, fileEvent));
+                    writer.Flush();
+                }
+
+                if (fileEvent.Contains(pereim))
+                {
+                    filePath = fileEvent.Replace(pereim, "");
+                    fileEvent = pereim;
+                }
+                SomeProc(fileEvent, filePath);
             }
+        }
+
+        public virtual void SomeProc(string fileEvent, string filePath)
+        {
+            switch (fileEvent)
+            {
+                case pereim:
+                    changed = true;
+                    break;
+                case "изменен":
+                    changed = true;
+                    break;
+                case "создан":
+                    changed = true;
+                    break;
+                case "удален":
+                    break;
+            }
+            if (!changed) {
+                TotalList.Add(filePath);
+            }
+        }
+
+        private List<string> CopyFiles()
+        {
+            int count = 0;
+            List<string> newFiles = new List<string>();
+            string newFile;
+            foreach (var file in TotalList)
+            {
+                if (File.Exists(file))
+                {
+                    newFile = PathCopy + Path.GetFileName(file);
+                    try
+                    {
+                        File.Copy(file, newFile, true); 
+                        newFiles.Add(newFile);
+                        count++;
+                    }
+                    catch (Exception ex) {
+                        newFiles.Add("возникла ошибка при записи файла: {newFile}");
+                    }
+                }
+                else { 
+                    newFiles.Add($"такого файла не существует: {file}"); }
+            }
+            TotalList.Clear();  
+            return newFiles;
+        }
+
+        private void TimerProc()
+        {
+            timeTimers++;
+            if (timeTimers >= timeDoCopy) {
+                timeTimers = 0;
+                richList.AddRange( CopyFiles());
+            }
+            
+        }
+
+        public static bool FileCheck(string filePath)
+        {
+            if (!File.Exists(filePath)) 
+                return false;
+            return true;
+        }
+
+        private static bool IsValidWindowsPathWithTrailingSlash(ref string path)
+        {//определяет валидность пути
+            if (string.IsNullOrEmpty(path)) 
+                return false;
+            if  (!path.EndsWith("\\"))
+                path += "\\";
+
+            try
+            {
+                // Проверяем, может ли путь быть преобразован в абсолютный
+                string fullPath = Path.GetFullPath(path);
+                return Path.IsPathRooted(path); // true для "C:\...", "\\Server\..."
+            }
+            catch (Exception) // PathTooLongException, ArgumentException и т. д.
+            {
+                return false;
+            }
+        }
+        public static bool PathCheck(ref string filePath)
+        {
+            
+            return IsValidWindowsPathWithTrailingSlash(ref filePath);
         }
     }
 }
