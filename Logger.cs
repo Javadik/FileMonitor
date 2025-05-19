@@ -123,6 +123,7 @@ namespace FileMonitor
 
         public virtual void SomeProc(string fileEvent, string filePath)
         {
+            changed = false;
             switch (fileEvent)
             {
                 case pereim:
@@ -137,7 +138,7 @@ namespace FileMonitor
                 case "удален":
                     break;
             }
-            if (!changed) {
+            if (changed) {
                 TotalList.Add(filePath);
             }
         }

@@ -115,6 +115,7 @@
             this.cblfCopy.Name = "cblfCopy";
             this.cblfCopy.Size = new System.Drawing.Size(523, 24);
             this.cblfCopy.TabIndex = 6;
+            this.cblfCopy.Validated += new System.EventHandler(this.cblfCopy_Validated);
             // 
             // lbCarplay
             // 
@@ -154,6 +155,7 @@
             this.cblpCopy.Name = "cblpCopy";
             this.cblpCopy.Size = new System.Drawing.Size(523, 24);
             this.cblpCopy.TabIndex = 2;
+            this.cblpCopy.Validated += new System.EventHandler(this.cblpCopy_Validated);
             // 
             // lbLogger
             // 
@@ -173,6 +175,7 @@
             this.cbLogger.Name = "cbLogger";
             this.cbLogger.Size = new System.Drawing.Size(523, 24);
             this.cbLogger.TabIndex = 0;
+            this.cbLogger.Validated += new System.EventHandler(this.cbLogger_Validated);
             // 
             // richTextBox1
             // 
@@ -193,6 +196,7 @@
             this.button1.TabIndex = 4;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FileMonitor
@@ -206,7 +210,7 @@
             this.Controls.Add(this.btStart);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FileMonitor";
-            this.Text = "FileMonitor";
+            this.Text = "FileMonitor 1.0";
             this.Load += new System.EventHandler(this.FileMonitor_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
