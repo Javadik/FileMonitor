@@ -15,16 +15,9 @@ namespace FileMonitor
     class LoggerPath: Logger
     {
         private List<string> audioList = new List<string>();
-        /*
-        public LoggerPath(string wDir_) : base()
-        {
-            this.wDir = Path.GetDirectoryName(wDir_);
-            watcher.Path = this.wDir;
-            watcher.NotifyFilter = NotifyFilters.LastWrite;
-            watcher.Filter = Path.GetFileName(wDir_);
-        }*/
+        
 
-        public LoggerPath(string w_Dir, string Pathcp, int timer_Period, int time_DoCopy) : base(w_Dir)
+        public LoggerPath(string w_Dir, string Pathcp, int timer_Period, int time_DoCopy) : base(w_Dir,true)
         { //w_Dir - path-File-monitoring         Pathcp -CopyTo path
             PathCopy = Pathcp;
             logfile = this.pathLocal + "pathslog.txt";

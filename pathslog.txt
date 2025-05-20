@@ -5,3 +5,33 @@
 19.05.2025 04:20:09 файл E:\testFiles\VAN_0146.jpg был создан
 19.05.2025 04:24:11 файл E:\testFiles\VAN_0144.jpg был создан
 19.05.2025 04:29:37 файл E:\testFiles\VAN_0135.jpg был создан
+20.05.2025 10:32:10 файл E:\testFiles\testFiles5\VAN_0137.jpg был переименован в E:\testFiles\testFiles5\VAN_0137_.jpg
+20.05.2025 10:32:22 файл E:\testFiles\testFiles5 был изменен
+20.05.2025 10:40:05 файл E:\testFiles\testFiles8\VAN_0129.jpg был удален
+20.05.2025 10:41:17 файл E:\testFiles\testFiles1\VAN_0129.jpg был создан
+20.05.2025 10:42:43 файл E:\testFiles\testFiles1 был изменен
+20.05.2025 11:31:35 файл E:\testFiles\testFiles5 был переименован в E:\testFiles\testFiles7
+20.05.2025 11:32:57 файл E:\testFiles\testFiles7\VAN_0131.jpg был создан
+20.05.2025 11:33:05 файл E:\testFiles\testFiles7\VAN_0131.jpg был изменен
+20.05.2025 11:49:13 файл E:\testFiles\testFiles7\VAN_0141.jpg был создан
+20.05.2025 11:49:37 файл E:\testFiles\testFiles7\VAN_0141.jpg был изменен
+20.05.2025 11:51:25 файл E:\testFiles\testFiles7\VAN_0141.jpg был создан
+20.05.2025 11:51:43 файл E:\testFiles\testFiles7\VAN_0141.jpg был создан
+20.05.2025 11:52:38 файл E:\testFiles\testFiles7\VAN_0141.jpg был изменен
+20.05.2025 11:53:00 файл E:\testFiles\testFiles7\VAN_0141.jpg был изменен
+21.05.2025 12:02:39 файл E:\testFiles\testFiles7\VAN_0146.jpg был изменен
+21.05.2025 12:03:03 файл E:\testFiles\testFiles7\VAN_0146.jpg был изменен
+21.05.2025 12:03:09 файл E:\testFiles\testFiles7\VAN_0146.jpg был изменен
+21.05.2025 12:10:10 файл E:\testFiles\testFiles8\VAN_0135.jpg был удален
+21.05.2025 12:10:10 файл E:\testFiles\testFiles7\VAN_0135.jpg был удален
+21.05.2025 12:10:15 файл E:\testFiles\testFiles8\VAN_0135.jpg был создан
+21.05.2025 12:10:15 файл E:\testFiles\testFiles8 был изменен
+21.05.2025 12:25:16 файл E:\testFiles\testFiles8\VAN_0208.jpg был удален
+21.05.2025 12:25:16 файл E:\testFiles\testFiles7\VAN_0208.jpg был создан
+21.05.2025 12:25:16 файл E:\testFiles\testFiles7 был изменен
+21.05.2025 12:26:19 файл E:\testFiles\testFiles8\VAN_0203.jpg был удален
+21.05.2025 12:26:19 файл E:\testFiles\testFiles7\VAN_0203.jpg был создан
+21.05.2025 12:26:19 файл E:\testFiles\testFiles7 был изменен
+21.05.2025 12:27:25 файл E:\testFiles\testFiles7\VAN_0203.jpg был удален
+21.05.2025 12:27:25 файл E:\testFiles\testFiles8\VAN_0203.jpg был создан
+21.05.2025 12:27:25 файл E:\testFiles\testFiles8 был изменен

@@ -38,16 +38,16 @@ namespace FileMonitor
 
         private void CheckList()
         {
-            if (loggerFile.richList.Count > 0)
+            if (loggerFile?.richList.Count > 0)
             {
-                richTextBox1.AppendText(string.Join("\n", loggerFile.richList) + "\n");
-                loggerFile.richList.Clear();
+                richTextBox1.AppendText(string.Join("\n", loggerFile?.richList) + "\n");
+                loggerFile?.richList.Clear();
             }
 
-            if (loggerPath.richList.Count > 0)
+            if (loggerPath?.richList.Count > 0)
             {
                 richTextBox1.AppendText(string.Join("\n", loggerPath.richList) + "\n");
-                loggerPath.richList.Clear();
+                loggerPath?.richList.Clear();
             }
         }
 
@@ -56,20 +56,20 @@ namespace FileMonitor
             //----for Xml file
             lfCopyPath = cblfCopy.Text;
             lfCarPlay = cbCurplay.Text;
-            if (!LoggerFile.FileCheck(lfCarPlay))
+            if (loggerFile != null && !LoggerFile.FileCheck(lfCarPlay))
             {
                 //richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' ");
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' ");
                 return;
             }
-            if (!LoggerFile.PathCheck(ref lfCopyPath))
+            if (loggerFile != null && !LoggerFile.PathCheck(ref lfCopyPath))
             {
                 richTextBox1.AppendText($"проверьте '{lblfCopy.Text}' : '{cblfCopy.Text}' ");
                 return;
             }
             cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
-            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, 10000, 2);
-            loggerFile.Start();
+      //      loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, 10000, 2);
+        //    loggerFile.Start();
 
             //----for path 
             lpCopyPath = cblpCopy.Text;
@@ -92,6 +92,8 @@ namespace FileMonitor
 
             splitContainer1.Panel1.Enabled = false;
             timer1.Start();
+            btStart.Enabled = false;
+            btStop.Enabled = true;
         }
 
         private void btStop_Click(object sender, EventArgs e)
@@ -101,6 +103,8 @@ namespace FileMonitor
             loggerPath?.Start();
             splitContainer1.Panel1.Enabled = true;
             timer1.Stop();
+            btStart.Enabled = true;
+            btStop.Enabled = false;
         }
 
         

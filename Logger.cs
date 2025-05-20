@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace FileMonitor
 {
@@ -34,20 +35,23 @@ namespace FileMonitor
         private DateTime _lastReadTime = DateTime.MinValue;
 
 
-        public Logger(string wDir_):this()
+        public Logger(string wDir_,bool subDir = false):this()
         {
             this.wDir = wDir_;
             watcher.Path = wDir_; // Обновляем путь
-           
-            
+            watcher.IncludeSubdirectories = subDir; // Включать ли  подпапки
+
         }
         public Logger()
         {
             watcher = new FileSystemWatcher();
+            watcher.Filter = "*.*";         //следим только за файлами (не за папками)
+
             watcher.Deleted += Watcher_Deleted;
             watcher.Created += Watcher_Created;
             watcher.Changed += Watcher_Changed;
             watcher.Renamed += Watcher_Renamed;
+            
             timer = new System.Timers.Timer(timerPeriod) { AutoReset = true, Enabled = false };
             timer.Elapsed += (s, e) => TimerProc();
         }
@@ -124,6 +128,17 @@ namespace FileMonitor
         public virtual void SomeProc(string fileEvent, string filePath)
         {
             changed = false;
+            bool isPath = false;
+            try
+            {
+                isPath = File.GetAttributes(filePath).HasFlag(FileAttributes.Directory);
+            }
+            catch
+            {
+                return;
+            }
+            if (isPath)
+                return;
             switch (fileEvent)
             {
                 case pereim:
@@ -152,19 +167,24 @@ namespace FileMonitor
             {
                 if (File.Exists(file))
                 {
-                    newFile = PathCopy + Path.GetFileName(file);
+                    newFile = PathCopy + file.Replace(wDir, ""); //Path.GetFileName(file);
                     try
                     {
+                        string destinationDir = Path.GetDirectoryName(newFile);
+
+                        if (!Directory.Exists(destinationDir))
+                            Directory.CreateDirectory(destinationDir);
+
                         File.Copy(file, newFile, true); 
-                        newFiles.Add(newFile);
+                        newFiles.Add($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} {newFile}");
                         count++;
                     }
                     catch (Exception ex) {
-                        newFiles.Add("возникла ошибка при записи файла: {newFile}");
+                        newFiles.Add($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} возникла ошибка при записи файла: {newFile}");
                     }
                 }
                 else { 
-                    newFiles.Add($"такого файла не существует: {file}"); }
+                    newFiles.Add($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} такого файла не существует: {file}"); }
             }
             TotalList.Clear();  
             return newFiles;
