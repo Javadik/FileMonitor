@@ -108,13 +108,16 @@ namespace FileMonitor
         {
             lock (obj)
             {
-                
-                using (StreamWriter writer = new StreamWriter(logfile, true))
+                try
                 {
-                    writer.WriteLine(String.Format("{0} файл {1} был {2}",
-                        DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss"), filePath, fileEvent));
-                    writer.Flush();
+                    using (StreamWriter writer = new StreamWriter(logfile, true))
+                    {
+                        writer.WriteLine(String.Format("{0} файл {1} был {2}",
+                            DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss"), filePath, fileEvent));
+                        writer.Flush();
+                    }
                 }
+                catch { }
 
                 if (fileEvent.Contains(pereim))
                 {
