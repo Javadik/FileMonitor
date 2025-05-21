@@ -18,6 +18,10 @@ namespace FileMonitor
 
         public LoggerFile(string wDir_) : base()
         {
+           /* if (!File.Exists(wDir_))  //сделал проверку в форме
+            {
+                throw new FileNotFoundException($"Файл {wDir_} не найден!");
+            } */
             this.wDir = Path.GetDirectoryName(wDir_);
             watcher.Path = this.wDir;
             watcher.NotifyFilter = NotifyFilters.LastWrite;
@@ -81,7 +85,14 @@ namespace FileMonitor
                 //  watcher.EnableRaisingEvents = false; // Временно отключаем
                 HashSet<string>  lst = GetFilesinXML(filePath);
                 TotalList.UnionWith(lst);
-              //  watcher.EnableRaisingEvents = true; 
+
+                string timestamp = File.GetLastWriteTime(filePath).ToString("yyyyMMdd_HHmmss");
+                string originalName = Path.GetFileNameWithoutExtension(filePath);
+                string newFileName = $"{originalName}_{timestamp}.xml";
+                string destinationPath = Path.Combine(PathCopy, newFileName);
+
+                File.Copy(filePath, destinationPath, true);
+                richList.Add(destinationPath);
             }
         }
 

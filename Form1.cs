@@ -29,8 +29,8 @@ namespace FileMonitor
             timer1.Interval = 10000; // 10 сек
             timer1.Tick += (s, e) => CheckList();
 
-            cblfCopy.Text = "E:\\testFiles3\\";
-            cbCurplay.Text = "E:\\testFilesX\\cur_playing.xml";
+            cblfCopy.Text = "E:\\copyFiles\\"; //"E:\\testFiles3\\";
+            cbCurplay.Text = "C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing.xml";// "E:\\testFilesX\\cur_playing.xml";
 
             cblpCopy.Text = "E:\\testFiles5\\";
             cbLogger.Text = "E:\\testFiles\\";
@@ -56,35 +56,39 @@ namespace FileMonitor
             //----for Xml file
             lfCopyPath = cblfCopy.Text;
             lfCarPlay = cbCurplay.Text;
-            if (loggerFile != null && !LoggerFile.FileCheck(lfCarPlay))
+            bool pathsOk = true;
+            if (!LoggerFile.FileCheck(lfCarPlay)) //loggerFile != null && 
             {
-                //richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' ");
-                richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' ");
-                return;
+                richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' \n");
+                pathsOk =false;
             }
-            if (loggerFile != null && !LoggerFile.PathCheck(ref lfCopyPath))
+            if (!LoggerFile.PathCheck(ref lfCopyPath))
             {
-                richTextBox1.AppendText($"проверьте '{lblfCopy.Text}' : '{cblfCopy.Text}' ");
-                return;
+                richTextBox1.AppendText($"проверьте '{lblfCopy.Text}' : '{cblfCopy.Text}' \n");
+                pathsOk = false;
             }
-            cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
-      //      loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, 10000, 2);
-        //    loggerFile.Start();
+            
 
             //----for path 
             lpCopyPath = cblpCopy.Text;
             lpLoggerPath = cbLogger.Text;
             if (!LoggerPath.PathCheck(ref lpLoggerPath))
             {
-                //richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' ");
-                richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' ");
-                return;
+                richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' \n");
+                pathsOk = false;
             }
             if (!LoggerPath.PathCheck(ref lpCopyPath))
             {
-                richTextBox1.AppendText($"проверьте '{lblpCopy.Text}' : '{cblpCopy.Text}' ");
-                return;
+                richTextBox1.AppendText($"проверьте '{lblpCopy.Text}' : '{cblpCopy.Text}' \n");
+                pathsOk = false;
             }
+
+            if (!pathsOk)
+                return;
+            cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
+            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, 10000, 2);
+            loggerFile.Start();
+
             cblpCopy.Text = lpCopyPath;  //  тк могут измениться из-за ref
             cbLogger.Text = lpLoggerPath;   //  тк могут измениться из-за ref
             loggerPath = new LoggerPath(lpLoggerPath, lpCopyPath, 20000, 1);

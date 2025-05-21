@@ -211,7 +211,7 @@ namespace FileMonitor
         }
 
         private static bool IsValidWindowsPathWithTrailingSlash(ref string path)
-        {//определяет валидность пути
+        {//определяет валидность пути, но не существование!
             if (string.IsNullOrEmpty(path)) 
                 return false;
             if  (!path.EndsWith("\\"))
@@ -221,7 +221,11 @@ namespace FileMonitor
             {
                 // Проверяем, может ли путь быть преобразован в абсолютный
                 string fullPath = Path.GetFullPath(path);
-                return Path.IsPathRooted(path); // true для "C:\...", "\\Server\..."
+                if (Directory.Exists(fullPath))
+                    return Path.IsPathRooted(path); // true для "C:\...", "\\Server\..."
+                else 
+                    return false;
+
             }
             catch (Exception) // PathTooLongException, ArgumentException и т. д.
             {
