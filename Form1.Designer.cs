@@ -41,6 +41,9 @@
             this.cbLogger = new System.Windows.Forms.ComboBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.button1 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tbDays = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -49,10 +52,9 @@
             // 
             // btStart
             // 
-            this.btStart.Location = new System.Drawing.Point(100, 48);
-            this.btStart.Margin = new System.Windows.Forms.Padding(4);
+            this.btStart.Location = new System.Drawing.Point(75, 39);
             this.btStart.Name = "btStart";
-            this.btStart.Size = new System.Drawing.Size(100, 28);
+            this.btStart.Size = new System.Drawing.Size(75, 23);
             this.btStart.TabIndex = 0;
             this.btStart.Text = "Start";
             this.btStart.UseVisualStyleBackColor = true;
@@ -61,10 +63,9 @@
             // btStop
             // 
             this.btStop.Enabled = false;
-            this.btStop.Location = new System.Drawing.Point(263, 48);
-            this.btStop.Margin = new System.Windows.Forms.Padding(4);
+            this.btStop.Location = new System.Drawing.Point(197, 39);
             this.btStop.Name = "btStop";
-            this.btStop.Size = new System.Drawing.Size(100, 28);
+            this.btStop.Size = new System.Drawing.Size(75, 23);
             this.btStop.TabIndex = 1;
             this.btStop.Text = "Stop";
             this.btStop.UseVisualStyleBackColor = true;
@@ -74,8 +75,7 @@
             // 
             this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer1.Location = new System.Drawing.Point(0, 113);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 92);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -93,88 +93,79 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(1277, 442);
-            this.splitContainer1.SplitterDistance = 180;
-            this.splitContainer1.SplitterWidth = 5;
+            this.splitContainer1.Size = new System.Drawing.Size(958, 359);
+            this.splitContainer1.SplitterDistance = 146;
             this.splitContainer1.TabIndex = 3;
             // 
             // lblfCopy
             // 
             this.lblfCopy.AutoSize = true;
-            this.lblfCopy.Location = new System.Drawing.Point(617, 85);
-            this.lblfCopy.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblfCopy.Location = new System.Drawing.Point(463, 69);
             this.lblfCopy.Name = "lblfCopy";
-            this.lblfCopy.Size = new System.Drawing.Size(95, 16);
+            this.lblfCopy.Size = new System.Drawing.Size(75, 13);
             this.lblfCopy.TabIndex = 7;
             this.lblfCopy.Text = "копировать в";
             // 
             // cblfCopy
             // 
             this.cblfCopy.FormattingEnabled = true;
-            this.cblfCopy.Location = new System.Drawing.Point(611, 112);
-            this.cblfCopy.Margin = new System.Windows.Forms.Padding(4);
+            this.cblfCopy.Location = new System.Drawing.Point(458, 91);
             this.cblfCopy.Name = "cblfCopy";
-            this.cblfCopy.Size = new System.Drawing.Size(523, 24);
+            this.cblfCopy.Size = new System.Drawing.Size(393, 21);
             this.cblfCopy.TabIndex = 6;
             this.cblfCopy.Validated += new System.EventHandler(this.cblfCopy_Validated);
             // 
             // lbCarplay
             // 
             this.lbCarplay.AutoSize = true;
-            this.lbCarplay.Location = new System.Drawing.Point(23, 85);
-            this.lbCarplay.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lbCarplay.Location = new System.Drawing.Point(17, 69);
             this.lbCarplay.Name = "lbCarplay";
-            this.lbCarplay.Size = new System.Drawing.Size(76, 16);
+            this.lbCarplay.Size = new System.Drawing.Size(61, 13);
             this.lbCarplay.TabIndex = 5;
             this.lbCarplay.Text = "cur_playing";
             // 
             // cbCurplay
             // 
             this.cbCurplay.FormattingEnabled = true;
-            this.cbCurplay.Location = new System.Drawing.Point(16, 112);
-            this.cbCurplay.Margin = new System.Windows.Forms.Padding(4);
+            this.cbCurplay.Location = new System.Drawing.Point(12, 91);
             this.cbCurplay.Name = "cbCurplay";
-            this.cbCurplay.Size = new System.Drawing.Size(523, 24);
+            this.cbCurplay.Size = new System.Drawing.Size(393, 21);
             this.cbCurplay.TabIndex = 4;
             this.cbCurplay.Validated += new System.EventHandler(this.cbCurplay_Validated);
             // 
             // lblpCopy
             // 
             this.lblpCopy.AutoSize = true;
-            this.lblpCopy.Location = new System.Drawing.Point(617, 10);
-            this.lblpCopy.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblpCopy.Location = new System.Drawing.Point(463, 8);
             this.lblpCopy.Name = "lblpCopy";
-            this.lblpCopy.Size = new System.Drawing.Size(95, 16);
+            this.lblpCopy.Size = new System.Drawing.Size(75, 13);
             this.lblpCopy.TabIndex = 3;
             this.lblpCopy.Text = "копировать в";
             // 
             // cblpCopy
             // 
             this.cblpCopy.FormattingEnabled = true;
-            this.cblpCopy.Location = new System.Drawing.Point(611, 37);
-            this.cblpCopy.Margin = new System.Windows.Forms.Padding(4);
+            this.cblpCopy.Location = new System.Drawing.Point(458, 30);
             this.cblpCopy.Name = "cblpCopy";
-            this.cblpCopy.Size = new System.Drawing.Size(523, 24);
+            this.cblpCopy.Size = new System.Drawing.Size(393, 21);
             this.cblpCopy.TabIndex = 2;
             this.cblpCopy.Validated += new System.EventHandler(this.cblpCopy_Validated);
             // 
             // lbLogger
             // 
             this.lbLogger.AutoSize = true;
-            this.lbLogger.Location = new System.Drawing.Point(23, 10);
-            this.lbLogger.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lbLogger.Location = new System.Drawing.Point(17, 8);
             this.lbLogger.Name = "lbLogger";
-            this.lbLogger.Size = new System.Drawing.Size(101, 16);
+            this.lbLogger.Size = new System.Drawing.Size(80, 13);
             this.lbLogger.TabIndex = 1;
             this.lbLogger.Text = "папка логгера";
             // 
             // cbLogger
             // 
             this.cbLogger.FormattingEnabled = true;
-            this.cbLogger.Location = new System.Drawing.Point(16, 37);
-            this.cbLogger.Margin = new System.Windows.Forms.Padding(4);
+            this.cbLogger.Location = new System.Drawing.Point(12, 30);
             this.cbLogger.Name = "cbLogger";
-            this.cbLogger.Size = new System.Drawing.Size(523, 24);
+            this.cbLogger.Size = new System.Drawing.Size(393, 21);
             this.cbLogger.TabIndex = 0;
             this.cbLogger.Validated += new System.EventHandler(this.cbLogger_Validated);
             // 
@@ -182,34 +173,62 @@
             // 
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBox1.Location = new System.Drawing.Point(0, 0);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(4);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(1277, 257);
+            this.richTextBox1.Size = new System.Drawing.Size(958, 209);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(449, 70);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Location = new System.Drawing.Point(337, 57);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 28);
+            this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(455, 37);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(240, 13);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Файлы в директориях назначения хранятся : ";
+            // 
+            // tbDays
+            // 
+            this.tbDays.Location = new System.Drawing.Point(458, 58);
+            this.tbDays.Name = "tbDays";
+            this.tbDays.Size = new System.Drawing.Size(55, 20);
+            this.tbDays.TabIndex = 6;
+            this.tbDays.Text = "90";
+            this.tbDays.Validating += new System.ComponentModel.CancelEventHandler(this.tbDays_Validating);
+            this.tbDays.Validated += new System.EventHandler(this.tbDays_Validated);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(519, 65);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(31, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "дней";
+            // 
             // FileMonitor
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1279, 554);
+            this.ClientSize = new System.Drawing.Size(959, 450);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.tbDays);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.btStop);
             this.Controls.Add(this.btStart);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FileMonitor";
             this.Text = "FileMonitor 1.10";
             this.Load += new System.EventHandler(this.FileMonitor_Load);
@@ -219,6 +238,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -237,6 +257,9 @@
         private System.Windows.Forms.Label lbCarplay;
         private System.Windows.Forms.ComboBox cbCurplay;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox tbDays;
+        private System.Windows.Forms.Label label2;
     }
 }
 

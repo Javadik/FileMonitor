@@ -55,6 +55,7 @@
     <Compile Include="LoggerPath.cs" />
     <Compile Include="LoggerFile.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="OldFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

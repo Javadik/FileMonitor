@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 
 //using System.Threading;
 //using System.Threading.Tasks;
@@ -18,6 +20,11 @@ namespace FileMonitor
 
         private string lpLoggerPath;//loggerPath monitored  path "E:\\testFilesX\\cur_playing.xml"
         private string lpCopyPath;//loggerPath  CopyPath   "E:\\testFiles3\\"
+
+        TimeSpan maxAge = TimeSpan.FromDays(90);
+        int AgeMult = 60; //через какое кол-во обращений к таймеру действует  очистка файлов
+        int cntAgeMult;
+
         public FileMonitor()
         {
             InitializeComponent();
@@ -34,10 +41,12 @@ namespace FileMonitor
 
             cblpCopy.Text = "E:\\copyLogger\\";
             cbLogger.Text = "E:\\testLogger\\";
+            
         }
 
         private void CheckList()
         {
+            List<string> list = new List<string>();
             if (loggerFile?.richList.Count > 0)
             {
                 richTextBox1.AppendText(string.Join("\n", loggerFile?.richList) + "\n");
@@ -46,9 +55,25 @@ namespace FileMonitor
 
             if (loggerPath?.richList.Count > 0)
             {
-                richTextBox1.AppendText(string.Join("\n", loggerPath.richList) + "\n");
+                richTextBox1.AppendText(string.Join("\n", loggerPath?.richList) + "\n");
                 loggerPath?.richList.Clear();
             }
+            cntAgeMult++;
+            if (cntAgeMult >= AgeMult)
+            { //очистка файлов
+                clearOldFiles();
+
+            }
+        }
+
+        private void clearOldFiles()
+        { //очистка файлов
+            OldFile.DeleteFilesOlderThan(lpCopyPath, maxAge);
+            OldFile.DeleteFilesOlderThan(lfCopyPath, maxAge);
+            richTextBox1.AppendText(string.Join("\n", OldFile.richListOld) + "\n");
+            OldFile.richListOld.Clear();
+            cntAgeMult = 0;
+
         }
 
         private void btStart_Click(object sender, EventArgs e)
@@ -93,6 +118,10 @@ namespace FileMonitor
             cbLogger.Text = lpLoggerPath;   //  тк могут измениться из-за ref
             loggerPath = new LoggerPath(lpLoggerPath, lpCopyPath, 20000, 1);
             loggerPath.Start();
+            string maxA = tbDays.Text;
+            maxAge = OldFile.GetMaxAge(ref maxA);
+            tbDays.Text = maxA;
+            clearOldFiles();
 
             splitContainer1.Panel1.Enabled = false;
             timer1.Start();
@@ -145,5 +174,16 @@ namespace FileMonitor
             lfCopyPath = cblfCopy.Text;
         }
 
+        private void tbDays_Validated(object sender, EventArgs e)
+        {
+            string maxA = tbDays.Text;
+            maxAge = OldFile.GetMaxAge(ref maxA);
+            tbDays.Text = maxA;
+        }
+
+        private void tbDays_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
     }
 }
