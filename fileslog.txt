@@ -20,3 +20,7 @@
 19.05.2025 03:52:13 файл E:\testFilesX\cur_playing.xml был изменен
 22.05.2025 01:30:16 файл C:\Users\Vadim\source\repos\FileMonitor\cur_playing.xml был изменен
 22.05.2025 01:39:25 файл C:\Users\Vadim\source\repos\FileMonitor\cur_playing.xml был изменен
+22.05.2025 11:48:52 файл C:\Users\Vadim\source\repos\FileMonitor\cur_playing_w.xml был изменен
+22.05.2025 11:57:09 файл C:\Users\Vadim\source\repos\FileMonitor\cur_playing_w.xml был изменен
+22.05.2025 11:57:49 файл C:\Users\Vadim\source\repos\FileMonitor\cur_playing_w.xml был изменен
+22.05.2025 12:13:47 файл C:\Users\Vadim\source\repos\FileMonitor\cur_playing_w.xml был изменен

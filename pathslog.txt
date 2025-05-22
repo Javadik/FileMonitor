@@ -50,3 +50,8 @@
 21.05.2025 12:56:42 файл E:\testFiles\testFiles7\VAN_0206.jpg был создан
 21.05.2025 12:56:42 файл E:\testFiles\testFiles8\VAN_0207.jpg был удален
 21.05.2025 12:56:42 файл E:\testFiles\testFiles7\VAN_0207.jpg был создан
+22.05.2025 11:47:02 файл E:\testLogger\Capture One Catalog\Adjustments был изменен
+22.05.2025 11:47:34 файл E:\testLogger\Capture One Catalog\Adjustments\LAM\2021\4\25\1\IMGP3149.PEF.comask был переименован в E:\testLogger\Capture One Catalog\Adjustments\LAM\2021\4\25\1\IMGP314_.PEF.comask
+22.05.2025 11:47:34 файл E:\testLogger\Capture One Catalog\Adjustments\LAM\2021\4\25\1 был изменен
+22.05.2025 12:12:28 файл E:\testLogger\Capture One Catalog\Cache\Previews\2021\4\25\2\IMGP315_0.PEF.cop был переименован в E:\testLogger\Capture One Catalog\Cache\Previews\2021\4\25\2\IMGP315__0.PEF.cop
+22.05.2025 12:12:29 файл E:\testLogger\Capture One Catalog\Cache\Previews\2021\4\25\2 был изменен

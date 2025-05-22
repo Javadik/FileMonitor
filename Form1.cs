@@ -30,10 +30,10 @@ namespace FileMonitor
             timer1.Tick += (s, e) => CheckList();
 
             cblfCopy.Text = "E:\\copyFiles\\"; //"E:\\testFiles3\\";
-            cbCurplay.Text = "C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing.xml";// "E:\\testFilesX\\cur_playing.xml";
+            cbCurplay.Text = "C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";// "E:\\testFilesX\\cur_playing.xml";
 
-            cblpCopy.Text = "E:\\testFiles5\\";
-            cbLogger.Text = "E:\\testFiles\\";
+            cblpCopy.Text = "E:\\copyLogger\\";
+            cbLogger.Text = "E:\\testLogger\\";
         }
 
         private void CheckList()

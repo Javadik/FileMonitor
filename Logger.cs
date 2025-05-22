@@ -164,13 +164,21 @@ namespace FileMonitor
         private List<string> CopyFiles()
         {
             int count = 0;
+            bool path = false;
             List<string> newFiles = new List<string>();
             string newFile;
+            Type callerType = this.GetType();
+            if(callerType.Name == "LoggerPath") 
+                path = true;
             foreach (var file in TotalList)
             {
                 if (File.Exists(file))
                 {
-                    newFile = PathCopy + file.Replace(wDir, ""); //Path.GetFileName(file);
+                    if (!path)
+                    {
+                        newFile = PathCopy + Path.GetFileName(file);
+                    }else
+                        newFile = PathCopy + file.Replace(wDir, ""); 
                     try
                     {
                         string destinationDir = Path.GetDirectoryName(newFile);
