@@ -15,6 +15,8 @@ namespace FileMonitor
     class LoggerFile: Logger
     {
         private List<string> audioList = new List<string>();
+        private string commonFile;
+        
 
         public LoggerFile(string wDir_) : base()
         {
@@ -28,15 +30,16 @@ namespace FileMonitor
             watcher.Filter = Path.GetFileName(wDir_);
         }
 
-        public LoggerFile(string w_Dir, string audioPath, int timer_Period, int time_DoCopy) : this(w_Dir)
+        public LoggerFile(string w_Dir, string audioPath, string fcommonFile, int timer_Period, int time_DoCopy) : this(w_Dir)
         { //w_Dir - xmlFile         audioPath -CopyTo path
             PathCopy = audioPath;
             logfile = this.pathLocal + "fileslog.txt";
             timerPeriod = timer_Period;
             timeDoCopy = time_DoCopy;
-        }
+            commonFile = fcommonFile;
+        } 
 
-        bool IsFileReady(string path)
+        public static bool IsFileReady(string path)
         {
             try
             {
@@ -78,21 +81,83 @@ namespace FileMonitor
             return list;
         }
 
-        public override void SomeProc(string fileEvent, string filePath)
+        public override void SomeProc(string fileEvent, string fnewXML)
         {
             if (fileEvent == "изменен" )
             {
                 //  watcher.EnableRaisingEvents = false; // Временно отключаем
-                HashSet<string>  lst = GetFilesinXML(filePath);
+                HashSet<string>  lst = GetFilesinXML(fnewXML);
                 TotalList.UnionWith(lst);
 
-                string timestamp = File.GetLastWriteTime(filePath).ToString("yyyyMMdd_HHmmss");
-                string originalName = Path.GetFileNameWithoutExtension(filePath);
-                string newFileName = $"{originalName}_{timestamp}.xml";
-                string destinationPath = Path.Combine(PathCopy, newFileName);
+                string ftimestamp = File.GetLastWriteTime(fnewXML).ToString("yyyyMMdd_HHmmss");
+                //string originalName = Path.GetFileNameWithoutExtension(fnewXML);
+                //string newFileName = $"{originalName}_{ftimestamp}.xml";
+                //string destinationPath = Path.Combine(PathCopy, newFileName);
 
-                File.Copy(filePath, destinationPath, true);
-                richList.Add(destinationPath);
+
+                PrependLinesToFileEditorSafe(commonFile, fnewXML, ftimestamp);
+                //File.Copy(fnewXML, destinationPath, true);
+                DateTime arrivalTime = DateTime.UtcNow;
+                //File.SetLastWriteTimeUtc(destinationPath, arrivalTime);
+                richList.Add($"{DateTime.Now.ToString(fmtData)} {commonFile}  - перезаписан");
+            }
+        }
+
+        public void PrependLinesToFileEditorSafe(string filePath, string newXML, string timestamp)
+        {//filePath -commomon file of XML  newXML-file with new xml  timestamp -time creating
+            string tempFile = Path.GetTempFileName();
+            string linesToAdd;
+            if (!IsFileReady(newXML))
+                return; // Файл занят, пропускаем
+            var fs = new FileStream(newXML, FileMode.Open, FileAccess.Read,
+                                      FileShare.Read);
+            using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+            {
+                linesToAdd = "<!--" + timestamp + "-->\n" + reader.ReadToEnd();
+            }
+
+            try
+            {
+                // 1. Записываем новые строки во временный файл
+                using (var writer = new StreamWriter(tempFile))
+                {
+                    writer.WriteLine(linesToAdd);
+
+                    // 2. Дописываем содержимое исходного файла (если он есть)
+                    if (File.Exists(filePath))
+                    {
+                        // Открываем с FileShare.Read, чтобы не мешать редактору
+                        using (var reader = new StreamReader(
+                            new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
+                        {
+                            string line;
+                            while ((line = reader.ReadLine()) != null)
+                                writer.WriteLine(line);
+                        }
+                    }
+                }
+
+                if (File.Exists(filePath))
+                {
+                    var fileInfo = new FileInfo(filePath);
+                    if (fileInfo.IsReadOnly)
+                    {
+                        fileInfo.IsReadOnly = false; // Снимаем атрибут "Только для чтения"
+                    }
+                }
+
+                // 3. Атомарная замена (работает на Windows)
+                //File.Replace(tempFile, filePath, null, true);
+                File.Copy(tempFile, filePath, overwrite: true);
+            }
+            catch
+            {
+                richList.Add($"{DateTime.Now.ToString(fmtData)} {commonFile}  - ошибка при перезаписи");
+            }
+            finally
+            {
+                if (File.Exists(tempFile))
+                    File.Delete(tempFile);
             }
         }
 

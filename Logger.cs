@@ -33,6 +33,7 @@ namespace FileMonitor
         public int timeDoCopy { get; set; } = 5; //сколько timeTimers должно произойти, чтобы отработало  Copy
         public List<string> richList { get; set; } = new List<string>();
         private DateTime _lastReadTime = DateTime.MinValue;
+        public static string fmtData = "dd/MM/yyyy hh:mm:ss";
 
 
         public Logger(string wDir_,bool subDir = false):this()
@@ -94,6 +95,10 @@ namespace FileMonitor
         {
             string fileEvent = "создан";
             string filePath = e.FullPath;
+            // Если с прошлого события прошло меньше 1 секунды — игнорируем
+            if ((DateTime.Now - _lastReadTime).TotalSeconds < 1)
+                return;
+            _lastReadTime = DateTime.Now;
             RecordEntry(fileEvent, filePath);
         }
         // удаление файлов
@@ -113,7 +118,7 @@ namespace FileMonitor
                     using (StreamWriter writer = new StreamWriter(logfile, true))
                     {
                         writer.WriteLine(String.Format("{0} файл {1} был {2}",
-                            DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss"), filePath, fileEvent));
+                            DateTime.Now.ToString(fmtData), filePath, fileEvent));
                         writer.Flush();
                     }
                 }
@@ -186,16 +191,19 @@ namespace FileMonitor
                         if (!Directory.Exists(destinationDir))
                             Directory.CreateDirectory(destinationDir);
 
-                        File.Copy(file, newFile, true); 
-                        newFiles.Add($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} {newFile}");
+                        File.Copy(file, newFile, true);
+                        DateTime arrivalTime = DateTime.UtcNow;
+                        File.SetLastWriteTimeUtc(newFile, arrivalTime);
+
+                        newFiles.Add($"{DateTime.Now.ToString(fmtData)} {newFile}");
                         count++;
                     }
                     catch (Exception ex) {
-                        newFiles.Add($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} возникла ошибка при записи файла: {newFile}");
+                        newFiles.Add($"{DateTime.Now.ToString(fmtData)} возникла ошибка при записи файла: {newFile}");
                     }
                 }
                 else { 
-                    newFiles.Add($"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} такого файла не существует: {file}"); }
+                    newFiles.Add($"{DateTime.Now.ToString(fmtData)} такого файла не существует: {file}"); }
             }
             TotalList.Clear();  
             return newFiles;

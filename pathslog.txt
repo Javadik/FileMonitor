@@ -55,3 +55,7 @@
 22.05.2025 11:47:34 файл E:\testLogger\Capture One Catalog\Adjustments\LAM\2021\4\25\1 был изменен
 22.05.2025 12:12:28 файл E:\testLogger\Capture One Catalog\Cache\Previews\2021\4\25\2\IMGP315_0.PEF.cop был переименован в E:\testLogger\Capture One Catalog\Cache\Previews\2021\4\25\2\IMGP315__0.PEF.cop
 22.05.2025 12:12:29 файл E:\testLogger\Capture One Catalog\Cache\Previews\2021\4\25\2 был изменен
+23.05.2025 01:39:42 файл E:\testLogger\testFiles7\VAN_0173.jpg был переименован в E:\testLogger\testFiles7\VAN_0173_.jpg
+23.05.2025 01:39:42 файл E:\testLogger\testFiles7 был изменен
+23.05.2025 02:08:55 файл E:\testLogger\testFiles8\VAN_0144_.jpg был переименован в E:\testLogger\testFiles8\VAN_0144.jpg
+23.05.2025 02:08:55 файл E:\testLogger\testFiles8 был изменен

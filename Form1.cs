@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+
 
 
 //using System.Threading;
@@ -13,10 +15,12 @@ namespace FileMonitor
         //Thread loggerThread;
         LoggerFile loggerFile;
         LoggerPath loggerPath;
+
         private System.Windows.Forms.Timer timer1;
 
         private string lfCarPlay;//loggerFile CarPlay file "E:\\testFilesX\\cur_playing.xml"
         private string lfCopyPath;//loggerFile  CopyPath   "E:\\testFiles3\\"
+        public string lfCommonFile; // cbCurplayItog.Text
 
         private string lpLoggerPath;//loggerPath monitored  path "E:\\testFilesX\\cur_playing.xml"
         private string lpCopyPath;//loggerPath  CopyPath   "E:\\testFiles3\\"
@@ -36,8 +40,8 @@ namespace FileMonitor
             timer1.Interval = 10000; // 10 сек
             timer1.Tick += (s, e) => CheckList();
 
-            cblfCopy.Text = "E:\\copyFiles\\"; //"E:\\testFiles3\\";
-            cbCurplay.Text = "C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";// "E:\\testFilesX\\cur_playing.xml";
+            cblfCopy.Text = "E:\\copyFiles\\"; //home  "E:\\testFiles3\\";
+            cbCurplay.Text = "E:\\testFilesX\\cur_playing.xml";//"C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";//home  "E:\\testFilesX\\cur_playing.xml";
 
             cblpCopy.Text = "E:\\copyLogger\\";
             cbLogger.Text = "E:\\testLogger\\";
@@ -45,7 +49,7 @@ namespace FileMonitor
         }
 
         private void CheckList()
-        {
+        {   //отрабатывает при событии таймера
             List<string> list = new List<string>();
             if (loggerFile?.richList.Count > 0)
             {
@@ -68,6 +72,7 @@ namespace FileMonitor
 
         private void clearOldFiles()
         { //очистка файлов
+            maxAge = TimeSpan.FromMinutes(1);// FromDays(3);
             OldFile.DeleteFilesOlderThan(lpCopyPath, maxAge);
             OldFile.DeleteFilesOlderThan(lfCopyPath, maxAge);
             richTextBox1.AppendText(string.Join("\n", OldFile.richListOld) + "\n");
@@ -76,12 +81,33 @@ namespace FileMonitor
 
         }
 
+        bool CanCreateFile(string filePath)
+        {
+            try
+            {
+                string directory = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                using (File.Create(filePath, 1, FileOptions.DeleteOnClose))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
         private void btStart_Click(object sender, EventArgs e)
         {
             //----for Xml file
             lfCopyPath = cblfCopy.Text;
             lfCarPlay = cbCurplay.Text;
             bool pathsOk = true;
+
             if (!LoggerFile.FileCheck(lfCarPlay)) //loggerFile != null && 
             {
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' \n");
@@ -92,7 +118,18 @@ namespace FileMonitor
                 richTextBox1.AppendText($"проверьте '{lblfCopy.Text}' : '{cblfCopy.Text}' \n");
                 pathsOk = false;
             }
-            
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(lfCommonFile));
+                File.WriteAllText(lfCommonFile, "");
+            }
+            catch {
+                richTextBox1.AppendText($"проверьте '{lbCarplay.Text} ' итоговый : '{cbCurplayItog.Text}' \n");
+                pathsOk = false;
+            }
+           
+
 
             //----for path 
             lpCopyPath = cblpCopy.Text;
@@ -111,7 +148,7 @@ namespace FileMonitor
             if (!pathsOk)
                 return;
             cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
-            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, 10000, 2);
+            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, lfCommonFile, 10000, 2);
             loggerFile.Start();
 
             cblpCopy.Text = lpCopyPath;  //  тк могут измениться из-за ref
@@ -184,6 +221,11 @@ namespace FileMonitor
         private void tbDays_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
 
+        }
+
+        private void cbCurplayItog_Validated(object sender, EventArgs e)
+        {
+            lfCommonFile = cbCurplayItog.Text;
         }
     }
 }
