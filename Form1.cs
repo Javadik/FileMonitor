@@ -41,11 +41,13 @@ namespace FileMonitor
             timer1.Tick += (s, e) => CheckList();
 
             cblfCopy.Text = "E:\\copyFiles\\"; //home  "E:\\testFiles3\\";
-            cbCurplay.Text = "E:\\testFilesX\\cur_playing.xml";//"C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";//home  "E:\\testFilesX\\cur_playing.xml";
+            cbCurplay.Text = "E:\\testFilesX\\cur_playing_w.xml";//"C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";//home  "E:\\testFilesX\\cur_playing.xml";
 
             cblpCopy.Text = "E:\\copyLogger\\";
             cbLogger.Text = "E:\\testLogger\\";
-            
+            cbCurplayItog.Text = "E:\\testFilesY\\cur_playingComm.xml";
+
+
         }
 
         private void CheckList()
@@ -72,7 +74,7 @@ namespace FileMonitor
 
         private void clearOldFiles()
         { //очистка файлов
-            maxAge = TimeSpan.FromMinutes(1);// FromDays(3);
+            //test maxAge = TimeSpan.FromMinutes(1);// FromDays(3);
             OldFile.DeleteFilesOlderThan(lpCopyPath, maxAge);
             OldFile.DeleteFilesOlderThan(lfCopyPath, maxAge);
             richTextBox1.AppendText(string.Join("\n", OldFile.richListOld) + "\n");

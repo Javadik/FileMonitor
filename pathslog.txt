@@ -59,3 +59,4 @@
 23.05.2025 01:39:42 файл E:\testLogger\testFiles7 был изменен
 23.05.2025 02:08:55 файл E:\testLogger\testFiles8\VAN_0144_.jpg был переименован в E:\testLogger\testFiles8\VAN_0144.jpg
 23.05.2025 02:08:55 файл E:\testLogger\testFiles8 был изменен
+26.05.2025 12:17:53 файл E:\testLogger\AnyDesk\IMGP3149.PEF.cof был создан

@@ -16,7 +16,9 @@ namespace FileMonitor
     {
         private List<string> audioList = new List<string>();
         private string commonFile;
-        
+        private int   maxComFile = 25;//mnax quantaty time record XMLs into commonFile, then overrecord
+        private int qComFile = 0;// counter time record XMLs into commonFile
+
 
         public LoggerFile(string wDir_) : base()
         {
@@ -123,32 +125,29 @@ namespace FileMonitor
                 {
                     writer.WriteLine(linesToAdd);
 
-                    // 2. Дописываем содержимое исходного файла (если он есть)
-                    if (File.Exists(filePath))
+                    if (qComFile < maxComFile) //<25 records
                     {
-                        // Открываем с FileShare.Read, чтобы не мешать редактору
-                        using (var reader = new StreamReader(
-                            new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
+                        // 2. Дописываем содержимое исходного файла (если он есть)
+                        if (File.Exists(filePath))
                         {
-                            string line;
-                            while ((line = reader.ReadLine()) != null)
-                                writer.WriteLine(line);
+                            // Открываем с FileShare.Read, чтобы не мешать редактору
+                            using (var reader = new StreamReader(
+                                new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
+                            {
+                                string line;
+                                while ((line = reader.ReadLine()) != null)
+                                    writer.WriteLine(line);
+                            }
                         }
                     }
-                }
-
-                if (File.Exists(filePath))
-                {
-                    var fileInfo = new FileInfo(filePath);
-                    if (fileInfo.IsReadOnly)
-                    {
-                        fileInfo.IsReadOnly = false; // Снимаем атрибут "Только для чтения"
-                    }
+                    else
+                        qComFile = 0;
                 }
 
                 // 3. Атомарная замена (работает на Windows)
                 //File.Replace(tempFile, filePath, null, true);
                 File.Copy(tempFile, filePath, overwrite: true);
+                qComFile++;
             }
             catch
             {
