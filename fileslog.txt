@@ -41,3 +41,11 @@
 26.05.2025 01:59:34 файл E:\testFilesX\cur_playing.xml был изменен
 26.05.2025 02:02:06 файл E:\testFilesX\cur_playing.xml был изменен
 26.05.2025 12:14:02 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:03:55 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:22:10 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:25:16 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:30:47 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:46:14 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:48:04 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 03:57:09 файл E:\testFilesX\cur_playing_w.xml был изменен
+30.05.2025 01:38:13 файл E:\testFilesX\cur_playing_w.xml был изменен

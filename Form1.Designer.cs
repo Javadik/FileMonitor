@@ -31,6 +31,8 @@
             this.btStart = new System.Windows.Forms.Button();
             this.btStop = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.lbCarPlayItogReplace = new System.Windows.Forms.Label();
+            this.сbCarPlayItogReplace = new System.Windows.Forms.ComboBox();
             this.lbCarplayItog = new System.Windows.Forms.Label();
             this.cbCurplayItog = new System.Windows.Forms.ComboBox();
             this.lblfCopy = new System.Windows.Forms.Label();
@@ -44,7 +46,7 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.tbDays = new System.Windows.Forms.TextBox();
+            this.сbDays = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -86,6 +88,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.lbCarPlayItogReplace);
+            this.splitContainer1.Panel1.Controls.Add(this.сbCarPlayItogReplace);
             this.splitContainer1.Panel1.Controls.Add(this.lbCarplayItog);
             this.splitContainer1.Panel1.Controls.Add(this.cbCurplayItog);
             this.splitContainer1.Panel1.Controls.Add(this.lblfCopy);
@@ -104,6 +108,26 @@
             this.splitContainer1.SplitterDistance = 179;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 3;
+            // 
+            // lbCarPlayItogReplace
+            // 
+            this.lbCarPlayItogReplace.AutoSize = true;
+            this.lbCarPlayItogReplace.Location = new System.Drawing.Point(23, 117);
+            this.lbCarPlayItogReplace.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lbCarPlayItogReplace.Name = "lbCarPlayItogReplace";
+            this.lbCarPlayItogReplace.Size = new System.Drawing.Size(255, 16);
+            this.lbCarPlayItogReplace.TabIndex = 11;
+            this.lbCarPlayItogReplace.Text = "Путь для замены cur_playing итоговый";
+            // 
+            // сbCarPlayItogReplace
+            // 
+            this.сbCarPlayItogReplace.FormattingEnabled = true;
+            this.сbCarPlayItogReplace.Location = new System.Drawing.Point(16, 141);
+            this.сbCarPlayItogReplace.Margin = new System.Windows.Forms.Padding(4);
+            this.сbCarPlayItogReplace.Name = "сbCarPlayItogReplace";
+            this.сbCarPlayItogReplace.Size = new System.Drawing.Size(523, 24);
+            this.сbCarPlayItogReplace.TabIndex = 10;
+            this.сbCarPlayItogReplace.Validated += new System.EventHandler(this.сbCarPlayItogReplace_Validated);
             // 
             // lbCarplayItog
             // 
@@ -237,16 +261,15 @@
             this.label1.TabIndex = 5;
             this.label1.Text = "Файлы в директориях назначения хранятся : ";
             // 
-            // tbDays
+            // сbDays
             // 
-            this.tbDays.Location = new System.Drawing.Point(611, 71);
-            this.tbDays.Margin = new System.Windows.Forms.Padding(4);
-            this.tbDays.Name = "tbDays";
-            this.tbDays.Size = new System.Drawing.Size(72, 22);
-            this.tbDays.TabIndex = 6;
-            this.tbDays.Text = "90";
-            this.tbDays.Validating += new System.ComponentModel.CancelEventHandler(this.tbDays_Validating);
-            this.tbDays.Validated += new System.EventHandler(this.tbDays_Validated);
+            this.сbDays.Location = new System.Drawing.Point(611, 71);
+            this.сbDays.Margin = new System.Windows.Forms.Padding(4);
+            this.сbDays.Name = "сbDays";
+            this.сbDays.Size = new System.Drawing.Size(72, 22);
+            this.сbDays.TabIndex = 6;
+            this.сbDays.Text = "90";
+            this.сbDays.Validated += new System.EventHandler(this.сbDays_Validated);
             // 
             // label2
             // 
@@ -264,7 +287,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1279, 554);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.tbDays);
+            this.Controls.Add(this.сbDays);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.splitContainer1);
@@ -300,10 +323,12 @@
         private System.Windows.Forms.ComboBox cbCurplay;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox tbDays;
+        private System.Windows.Forms.TextBox сbDays;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lbCarplayItog;
         private System.Windows.Forms.ComboBox cbCurplayItog;
+        private System.Windows.Forms.Label lbCarPlayItogReplace;
+        private System.Windows.Forms.ComboBox сbCarPlayItogReplace;
     }
 }
 

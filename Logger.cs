@@ -86,7 +86,7 @@ namespace FileMonitor
                 return;
 
             _lastReadTime = DateTime.Now;
-            Thread.Sleep(100);
+            Thread.Sleep(300);
             RecordEntry(fileEvent, filePath);
             
         }

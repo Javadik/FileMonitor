@@ -15,9 +15,10 @@ namespace FileMonitor
     class LoggerFile: Logger
     {
         private List<string> audioList = new List<string>();
-        private string commonFile;
-        private int   maxComFile = 25;//mnax quantaty time record XMLs into commonFile, then overrecord
-        private int qComFile = 0;// counter time record XMLs into commonFile
+        private string carPlayItog;
+        private int   maxComFile = 25;//mnax quantaty time record XMLs into carPlayItog, then overrecord
+        private int qComFile = 0;// counter time record XMLs into carPlayItog
+        private string carPlayItogReplace;//path for replacing in XML
 
 
         public LoggerFile(string wDir_) : base()
@@ -32,13 +33,14 @@ namespace FileMonitor
             watcher.Filter = Path.GetFileName(wDir_);
         }
 
-        public LoggerFile(string w_Dir, string audioPath, string fcommonFile, int timer_Period, int time_DoCopy) : this(w_Dir)
+        public LoggerFile(string w_Dir, string audioPath, string fcarPlayItog, int timer_Period, int time_DoCopy, string fcarPlayItogReplace) : this(w_Dir)
         { //w_Dir - xmlFile         audioPath -CopyTo path
             PathCopy = audioPath;
             logfile = this.pathLocal + "fileslog.txt";
             timerPeriod = timer_Period;
             timeDoCopy = time_DoCopy;
-            commonFile = fcommonFile;
+            carPlayItog = fcarPlayItog;
+            carPlayItogReplace = fcarPlayItogReplace;
         } 
 
         public static bool IsFileReady(string path)
@@ -56,21 +58,10 @@ namespace FileMonitor
                 return false;
             }
         }
-        public HashSet<string> GetFilesinXML(String fl)
+        public HashSet<string> GetFilesinXML(String input)
         {
             string pattern = @"<FILE_NAME>(.*?)<\/FILE_NAME>";
-            string input;
             HashSet<string> list = new HashSet<string>();
-            if (!IsFileReady(fl))
-                return list; // Файл занят, пропускаем
-            var fs = new FileStream(fl, FileMode.Open, FileAccess.Read,
-                                      FileShare.Read);
-            
-
-            using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
-            {
-                input = reader.ReadToEnd();
-            }
 
             var regex = new Regex(pattern);
             var matches = regex.Matches(input);
@@ -83,40 +74,87 @@ namespace FileMonitor
             return list;
         }
 
+        /*
+        private string fReplace(string inst)
+        {
+            string res;
+            res= carPlayItogReplace + Path.GetFileName(inst);
+            return res;
+        } 
+        */
+        private string fReplace(string inst)
+        {
+            string fileName = Path.GetFileName(inst);
+            string fullPath = Path.Combine(carPlayItogReplace, fileName);
+            return Path.GetFullPath(fullPath); // Гарантирует нормальный путь
+        }
+
+
+
+        private const string FullTagPattern = @"(<FILE_NAME>)(.*?)(<\/FILE_NAME>)";
+        // Группы:        [1] открывающий тег  [2] содержимое  [3] закрывающий тег
+        public (HashSet<string> FileNames, string ModifiedXml) ProcessXml(string input)
+        {
+            var regex = new Regex(FullTagPattern);
+            var fileNames = new HashSet<string>();
+
+            string modifiedXml = regex.Replace(input, match =>
+            {
+                string fileName = match.Groups[2].Value; // Группа 2 — содержимое тега
+                fileNames.Add(fileName);
+                string replacedValue = fReplace(fileName);
+                return $"{match.Groups[1].Value}{replacedValue}{match.Groups[3].Value}";
+                // Groups[1] = <FILE_NAME>
+                // Groups[3] = </FILE_NAME>
+            });
+
+            return (fileNames, modifiedXml);
+        }
+
         public override void SomeProc(string fileEvent, string fnewXML)
         {
             if (fileEvent == "изменен" )
             {
                 //  watcher.EnableRaisingEvents = false; // Временно отключаем
-                HashSet<string>  lst = GetFilesinXML(fnewXML);
+                string ftimestamp = File.GetLastWriteTime(fnewXML).ToString("yyyyMMdd_HHmmss");
+                String fl;
+                string input;
+                
+                if (!IsFileReady(fnewXML))
+                    return; // Файл занят, пропускаем
+                using (var fs = new FileStream(fnewXML, FileMode.Open, FileAccess.Read,
+                                          FileShare.Read))
+                {
+
+                    using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                    {
+                        input = reader.ReadToEnd();
+                    }
+                }
+                if (string.IsNullOrEmpty(input)) 
+                    return;
+                HashSet<string> lst;
+                string output;
+                //HashSet<string>  lst = GetFilesinXML(input);
+                (lst,output) = ProcessXml(input);
                 TotalList.UnionWith(lst);
 
-                string ftimestamp = File.GetLastWriteTime(fnewXML).ToString("yyyyMMdd_HHmmss");
-                //string originalName = Path.GetFileNameWithoutExtension(fnewXML);
-                //string newFileName = $"{originalName}_{ftimestamp}.xml";
-                //string destinationPath = Path.Combine(PathCopy, newFileName);
-
-
-                PrependLinesToFileEditorSafe(commonFile, fnewXML, ftimestamp);
+                
+                CarPlayItogAdd(carPlayItog, output, ftimestamp);
                 //File.Copy(fnewXML, destinationPath, true);
                 DateTime arrivalTime = DateTime.UtcNow;
                 //File.SetLastWriteTimeUtc(destinationPath, arrivalTime);
-                richList.Add($"{DateTime.Now.ToString(fmtData)} {commonFile}  - перезаписан");
+                richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItog}  - перезаписан");
             }
         }
 
-        public void PrependLinesToFileEditorSafe(string filePath, string newXML, string timestamp)
+        public void CarPlayItogAdd(string filePath, string input2, string timestamp)
+        //Prepend Lines To File Editor Safe
         {//filePath -commomon file of XML  newXML-file with new xml  timestamp -time creating
             string tempFile = Path.GetTempFileName();
             string linesToAdd;
-            if (!IsFileReady(newXML))
-                return; // Файл занят, пропускаем
-            var fs = new FileStream(newXML, FileMode.Open, FileAccess.Read,
-                                      FileShare.Read);
-            using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
-            {
-                linesToAdd = "<!--" + timestamp + "-->\n" + reader.ReadToEnd();
-            }
+            
+            linesToAdd = "<!--" + timestamp + "-->\n" + input2;
 
             try
             {
@@ -151,7 +189,7 @@ namespace FileMonitor
             }
             catch
             {
-                richList.Add($"{DateTime.Now.ToString(fmtData)} {commonFile}  - ошибка при перезаписи");
+                richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItog}  - ошибка при перезаписи");
             }
             finally
             {

@@ -20,7 +20,8 @@ namespace FileMonitor
 
         private string lfCarPlay;//loggerFile CarPlay file "E:\\testFilesX\\cur_playing.xml"
         private string lfCopyPath;//loggerFile  CopyPath   "E:\\testFiles3\\"
-        public string lfCommonFile; // cbCurplayItog.Text
+        public string lfCarPlayItog; // cbCurplayItog.Text
+        public string lfCarPlayItogReplace;   // путь для подмены путей в файле CarPlayItog
 
         private string lpLoggerPath;//loggerPath monitored  path "E:\\testFilesX\\cur_playing.xml"
         private string lpCopyPath;//loggerPath  CopyPath   "E:\\testFiles3\\"
@@ -42,10 +43,13 @@ namespace FileMonitor
 
             cblfCopy.Text = "E:\\copyFiles\\"; //home  "E:\\testFiles3\\";
             cbCurplay.Text = "E:\\testFilesX\\cur_playing_w.xml";//"C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";//home  "E:\\testFilesX\\cur_playing.xml";
+            cbCurplayItog.Text = "E:\\testFilesY\\cur_playingComm.xml";
+            сbCarPlayItogReplace.Text = @"E:\testReplacePath\";
+            
 
             cblpCopy.Text = "E:\\copyLogger\\";
             cbLogger.Text = "E:\\testLogger\\";
-            cbCurplayItog.Text = "E:\\testFilesY\\cur_playingComm.xml";
+            
 
 
         }
@@ -108,6 +112,8 @@ namespace FileMonitor
             //----for Xml file
             lfCopyPath = cblfCopy.Text;
             lfCarPlay = cbCurplay.Text;
+            lfCarPlayItog = cbCurplayItog.Text;
+            lfCarPlayItogReplace = сbCarPlayItogReplace.Text;
             bool pathsOk = true;
 
             if (!LoggerFile.FileCheck(lfCarPlay)) //loggerFile != null && 
@@ -123,14 +129,20 @@ namespace FileMonitor
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(lfCommonFile));
-                File.WriteAllText(lfCommonFile, "");
+                Directory.CreateDirectory(Path.GetDirectoryName(lfCarPlayItog));
+                File.WriteAllText(lfCarPlayItog, "");
             }
             catch {
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text} ' итоговый : '{cbCurplayItog.Text}' \n");
                 pathsOk = false;
             }
-           
+
+            if (!LoggerFile.PathCheck(ref lfCarPlayItogReplace))
+            {
+                richTextBox1.AppendText($"проверьте '{lbCarPlayItogReplace.Text}' : '{сbCarPlayItogReplace.Text}' \n");
+                pathsOk = false;
+            }
+
 
 
             //----for path 
@@ -150,16 +162,17 @@ namespace FileMonitor
             if (!pathsOk)
                 return;
             cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
-            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, lfCommonFile, 10000, 2);
+            сbCarPlayItogReplace.Text = lfCarPlayItogReplace; //  тк могут измениться из-за ref
+            loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, lfCarPlayItog, 10000, 2, lfCarPlayItogReplace);
             loggerFile.Start();
 
             cblpCopy.Text = lpCopyPath;  //  тк могут измениться из-за ref
             cbLogger.Text = lpLoggerPath;   //  тк могут измениться из-за ref
-            loggerPath = new LoggerPath(lpLoggerPath, lpCopyPath, 20000, 1);
+            loggerPath = new LoggerPath(lpLoggerPath, lpCopyPath, 19000, 1);
             loggerPath.Start();
-            string maxA = tbDays.Text;
+            string maxA = сbDays.Text;
             maxAge = OldFile.GetMaxAge(ref maxA);
-            tbDays.Text = maxA;
+            сbDays.Text = maxA;
             clearOldFiles();
 
             splitContainer1.Panel1.Enabled = false;
@@ -213,21 +226,22 @@ namespace FileMonitor
             lfCopyPath = cblfCopy.Text;
         }
 
-        private void tbDays_Validated(object sender, EventArgs e)
-        {
-            string maxA = tbDays.Text;
-            maxAge = OldFile.GetMaxAge(ref maxA);
-            tbDays.Text = maxA;
-        }
-
-        private void tbDays_Validating(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-
-        }
-
+        
         private void cbCurplayItog_Validated(object sender, EventArgs e)
         {
-            lfCommonFile = cbCurplayItog.Text;
+            lfCarPlayItog = cbCurplayItog.Text;
+        }
+
+        private void сbDays_Validated(object sender, EventArgs e)
+        {
+            string maxA = сbDays.Text;
+            maxAge = OldFile.GetMaxAge(ref maxA);
+            сbDays.Text = maxA;
+        }
+
+        private void сbCarPlayItogReplace_Validated(object sender, EventArgs e)
+        {
+            lfCarPlayItogReplace = сbCarPlayItogReplace.Text;
         }
     }
 }
