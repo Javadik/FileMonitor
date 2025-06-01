@@ -295,7 +295,8 @@
             this.Controls.Add(this.btStart);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FileMonitor";
-            this.Text = "FileMonitor 1.20";
+            this.Text = "FileMonitor 1.30";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FileMonitor_FormClosing);
             this.Load += new System.EventHandler(this.FileMonitor_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();

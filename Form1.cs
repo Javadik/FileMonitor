@@ -35,23 +35,66 @@ namespace FileMonitor
             InitializeComponent();
 
             // Инициализация таймеров (изначально остановлены)
-            
+
 
             timer1 = new System.Windows.Forms.Timer();
             timer1.Interval = 10000; // 10 сек
             timer1.Tick += (s, e) => CheckList();
 
-            cblfCopy.Text = "E:\\copyFiles\\"; //home  "E:\\testFiles3\\";
-            cbCurplay.Text = "E:\\testFilesX\\cur_playing_w.xml";//"C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";//home  "E:\\testFilesX\\cur_playing.xml";
-            cbCurplayItog.Text = "E:\\testFilesY\\cur_playingComm.xml";
-            сbCarPlayItogReplace.Text = @"E:\testReplacePath\";
-            
+            LoadSettings();
 
-            cblpCopy.Text = "E:\\copyLogger\\";
-            cbLogger.Text = "E:\\testLogger\\";
-            
+        }
 
+        private void LoadSettings()
+        {
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.cbLogger))
+            {
+                cbLogger.Text = Properties.Settings.Default.cbLogger;
+            }
+            else
+                cbLogger.Text = "E:\\testLogger\\";
 
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.cblpCopy))
+            {
+                cblpCopy.Text = Properties.Settings.Default.cblpCopy;
+            }
+            else
+                cblpCopy.Text = "E:\\copyLogger\\";
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.cbCurplay))
+            {
+                cbCurplay.Text = Properties.Settings.Default.cbCurplay;
+            }
+            else
+                cbCurplay.Text = "E:\\testFilesX\\cur_playing_w.xml";//"C:\\Users\\Vadim\\source\\repos\\FileMonitor\\cur_playing_w.xml";//home  "E:\\testFilesX\\cur_playing.xml";
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.cblfCopy))
+            {
+                cblfCopy.Text = Properties.Settings.Default.cblfCopy;
+            }
+            else
+                cblfCopy.Text = "E:\\copyFiles\\"; //home  "E:\\testFiles3\\";
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.сbCarPlayItogReplace))
+            {
+                сbCarPlayItogReplace.Text = Properties.Settings.Default.сbCarPlayItogReplace;
+            }
+            else
+                сbCarPlayItogReplace.Text = @"E:\testReplacePath\";
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.cbCurplayItog))
+            {
+                cbCurplayItog.Text = Properties.Settings.Default.cbCurplayItog;
+            }
+            else
+                cbCurplayItog.Text = "E:\\testFilesY\\cur_playingComm.xml";
+
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.сbDays))
+            {
+                сbDays.Text = Properties.Settings.Default.сbDays;
+            }
+            else
+                сbDays.Text = "90";
         }
 
         private void CheckList()
@@ -87,26 +130,7 @@ namespace FileMonitor
 
         }
 
-        bool CanCreateFile(string filePath)
-        {
-            try
-            {
-                string directory = Path.GetDirectoryName(filePath);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
 
-                using (File.Create(filePath, 1, FileOptions.DeleteOnClose))
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
         private void btStart_Click(object sender, EventArgs e)
         {
             //----for Xml file
@@ -119,7 +143,7 @@ namespace FileMonitor
             if (!LoggerFile.FileCheck(lfCarPlay)) //loggerFile != null && 
             {
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' \n");
-                pathsOk =false;
+                pathsOk = false;
             }
             if (!LoggerFile.PathCheck(ref lfCopyPath))
             {
@@ -132,7 +156,8 @@ namespace FileMonitor
                 Directory.CreateDirectory(Path.GetDirectoryName(lfCarPlayItog));
                 File.WriteAllText(lfCarPlayItog, "");
             }
-            catch {
+            catch
+            {
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text} ' итоговый : '{cbCurplayItog.Text}' \n");
                 pathsOk = false;
             }
@@ -183,7 +208,7 @@ namespace FileMonitor
 
         private void btStop_Click(object sender, EventArgs e)
         {
-            
+
             loggerFile?.Stop();
             loggerPath?.Start();
             splitContainer1.Panel1.Enabled = true;
@@ -192,19 +217,19 @@ namespace FileMonitor
             btStop.Enabled = false;
         }
 
-        
 
-        
+
+
         private void button1_Click(object sender, EventArgs e)
         {
-           // loggerFile.SomeProc("изменен", "E:\\testFilesX\\cur_playing.xml");
+            // loggerFile.SomeProc("изменен", "E:\\testFilesX\\cur_playing.xml");
 
 
         }
 
         private void FileMonitor_Load(object sender, EventArgs e)
         {
-           // logger.Stop();
+            // logger.Stop();
         }
 
         private void cbLogger_Validated(object sender, EventArgs e)
@@ -226,7 +251,7 @@ namespace FileMonitor
             lfCopyPath = cblfCopy.Text;
         }
 
-        
+
         private void cbCurplayItog_Validated(object sender, EventArgs e)
         {
             lfCarPlayItog = cbCurplayItog.Text;
@@ -242,6 +267,41 @@ namespace FileMonitor
         private void сbCarPlayItogReplace_Validated(object sender, EventArgs e)
         {
             lfCarPlayItogReplace = сbCarPlayItogReplace.Text;
+        }
+
+        private void FileMonitor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.cbLogger = cbLogger.Text;
+            Properties.Settings.Default.cblpCopy = cblpCopy.Text;
+            Properties.Settings.Default.cblpCopy = cblpCopy.Text;
+            Properties.Settings.Default.cbCurplay = cbCurplay.Text;
+            Properties.Settings.Default.cblfCopy = cblfCopy.Text;
+            Properties.Settings.Default.сbCarPlayItogReplace = сbCarPlayItogReplace.Text;
+            Properties.Settings.Default.cbCurplayItog = cbCurplayItog.Text;
+            Properties.Settings.Default.сbDays = сbDays.Text;
+
+            Properties.Settings.Default.Save();
+        }
+
+        bool CanCreateFile(string filePath)
+        {
+            try
+            {
+                string directory = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                using (File.Create(filePath, 1, FileOptions.DeleteOnClose))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
