@@ -19,6 +19,7 @@ namespace FileMonitor
         private int   maxComFile = 25;//mnax quantaty time record XMLs into carPlayItog, then overrecord
         private int qComFile = 0;// counter time record XMLs into carPlayItog
         private string carPlayItogReplace;//path for replacing in XML
+        public static bool  httpPath = false;   //if carPlayItogReplace http path or not
 
 
         public LoggerFile(string wDir_) : base()
@@ -86,6 +87,8 @@ namespace FileMonitor
         {
             string fileName = Path.GetFileName(inst);
             string fullPath = Path.Combine(carPlayItogReplace, fileName);
+            if(httpPath)
+                return fullPath;
             return Path.GetFullPath(fullPath); // Гарантирует нормальный путь
         }
 

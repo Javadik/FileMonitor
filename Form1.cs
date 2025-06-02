@@ -162,7 +162,11 @@ namespace FileMonitor
                 pathsOk = false;
             }
 
-            if (!LoggerFile.PathCheck(ref lfCarPlayItogReplace))
+            if (Uri.IsWellFormedUriString(lfCarPlayItogReplace, UriKind.Absolute))
+            {
+                LoggerFile.httpPath = true;
+            }
+            else if(!LoggerFile.PathCheck(ref lfCarPlayItogReplace))
             {
                 richTextBox1.AppendText($"проверьте '{lbCarPlayItogReplace.Text}' : '{сbCarPlayItogReplace.Text}' \n");
                 pathsOk = false;
@@ -187,7 +191,7 @@ namespace FileMonitor
             if (!pathsOk)
                 return;
             cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
-            сbCarPlayItogReplace.Text = lfCarPlayItogReplace; //  тк могут измениться из-за ref
+           // сbCarPlayItogReplace.Text = lfCarPlayItogReplace; //  тк могут измениться из-за ref
             loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, lfCarPlayItog, 10000, 2, lfCarPlayItogReplace);
             loggerFile.Start();
 
