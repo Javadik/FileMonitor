@@ -14,7 +14,7 @@ namespace FileMonitor
     class Logger
     {
         public FileSystemWatcher watcher;
-        object obj = new object();
+        public object obj = new object();
 #if DEBUG
         public string pathLocal = "..\\..\\";
 #else
@@ -23,7 +23,7 @@ namespace FileMonitor
         public string logfile { get; set; } //="..\\..\\templog.txt";//"e:\\templog.txt";
                         //List<string> curList;
                         // HashSet<string> curList = new HashSet<string>();
-        public HashSet<string> TotalList = new HashSet<string>();
+        public HashSet<string> TotalList = new HashSet<string>(); // Files - clips for copiing
         public string PathCopy { get; set; } // директория куда копируется
         public string wDir { get; set; }    // директория мониторинга
         private bool changed = false;
@@ -32,7 +32,7 @@ namespace FileMonitor
         private int timeTimers = 0; //count
         public int timeDoCopy { get; set; } = 5; //сколько timeTimers должно произойти, чтобы отработало  Copy
         public List<string> richList { get; set; } = new List<string>();
-        private DateTime _lastReadTime = DateTime.MinValue;
+        public DateTime _lastReadTime = DateTime.MinValue;
         public static string fmtData = "dd/MM/yyyy hh:mm:ss";
 
 
@@ -77,7 +77,7 @@ namespace FileMonitor
             RecordEntry(fileEvent, filePath);
         }
         // изменение файлов
-        public void Watcher_Changed(object sender, FileSystemEventArgs e)
+        public virtual void Watcher_Changed(object sender, FileSystemEventArgs e)
         {
             string fileEvent = "изменен";
             string filePath = e.FullPath;
@@ -86,7 +86,7 @@ namespace FileMonitor
                 return;
 
             _lastReadTime = DateTime.Now;
-            Thread.Sleep(300);
+            Thread.Sleep(100);
             RecordEntry(fileEvent, filePath);
             
         }
@@ -109,7 +109,7 @@ namespace FileMonitor
             RecordEntry(fileEvent, filePath);
         }
         const string pereim = "переименован в ";
-        private void RecordEntry(string fileEvent, string filePath)
+        public void RecordEntry(string fileEvent, string filePath)
         {
             lock (obj)
             {
@@ -252,6 +252,12 @@ namespace FileMonitor
         {
             
             return IsValidWindowsPathWithTrailingSlash(ref filePath);
+        }
+
+        public static bool LowPathCheck(string filePath)
+        {
+
+            return Path.IsPathRooted(filePath);
         }
     }
 }

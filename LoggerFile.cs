@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Text;
-using System.Threading;
-using System.Windows.Forms;
-
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using static System.Net.WebRequestMethods;
 using File = System.IO.File;
 
@@ -20,6 +22,8 @@ namespace FileMonitor
         private int qComFile = 0;// counter time record XMLs into carPlayItog
         private string carPlayItogReplace;//path for replacing in XML
         public static bool  httpPath = false;   //if carPlayItogReplace http path or not
+        public static int taskDelay = 100;
+
 
 
         public LoggerFile(string wDir_) : base()
@@ -42,7 +46,32 @@ namespace FileMonitor
             timeDoCopy = time_DoCopy;
             carPlayItog = fcarPlayItog;
             carPlayItogReplace = fcarPlayItogReplace;
-        } 
+        }
+
+        public override async void Watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            // Защита от повторных событий в короткий промежуток времени
+            if ((DateTime.Now - _lastReadTime).TotalSeconds < 1)
+                return;
+
+            _lastReadTime = DateTime.Now;
+
+            watcher.EnableRaisingEvents = false; // Отключаем watcher перед обработкой
+            try
+            {
+                await Task.Delay(taskDelay); // Даем файлу "успокоиться" (если запись еще не завершена)
+                RecordEntry("изменен", e.FullPath);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки (например, в файл или Debug)
+                richList.Add($"Ошибка при обработке файла {e.FullPath}: {ex.Message}");
+            }
+            finally
+            {
+                watcher.EnableRaisingEvents = true; // Включаем обратно
+            }
+        }
 
         public static bool IsFileReady(string path)
         {
@@ -114,46 +143,121 @@ namespace FileMonitor
             return (fileNames, modifiedXml);
         }
 
-        public override void SomeProc(string fileEvent, string fnewXML)
+        public override async void SomeProc(string fileEvent, string fnewXML)
         {
             if (fileEvent == "изменен" )
             {
                 //  watcher.EnableRaisingEvents = false; // Временно отключаем
-                string ftimestamp = File.GetLastWriteTime(fnewXML).ToString("yyyyMMdd_HHmmss");
-                String fl;
-                string input;
+                //string ftimestamp = File.GetLastWriteTime(fnewXML).ToString("yyyyMMdd_HHmmss");
+                var fileInfo = new FileInfo(fnewXML);
+                string ftimestamp = fileInfo.LastWriteTime.ToString("yyyyMMdd_HHmmss");
                 
-                if (!IsFileReady(fnewXML))
-                    return; // Файл занят, пропускаем
-                using (var fs = new FileStream(fnewXML, FileMode.Open, FileAccess.Read,
-                                          FileShare.Read))
-                {
+                //if (!IsFileReady(fnewXML))
+               //     return; // Файл занят, пропускаем
 
-                    using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                int maxRetries = 3;
+                int delayMs = 100;
+                string input = null;
+                string tempFile = null;
+
+
+                /*
+                for (int i = 0; i < maxRetries; i++)
+                {
+                    try
                     {
-                        input = reader.ReadToEnd();
+                        using (var fs = new FileStream(fnewXML, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                        {
+                            input = reader.ReadToEnd();
+                            break; // Успешно прочитали
+                        }
+                    }
+                    catch (IOException)
+                    {
+                        if (i == maxRetries - 1) throw; // Последняя попытка — пробрасываем исключение
+                        Thread.Sleep(delayMs); // Ждём перед повторной попыткой
+                    }
+                }*/
+
+                try
+                {
+                    for (int i = 0; i < maxRetries; i++)
+                    {
+                        try
+                        {
+                            tempFile = Path.GetTempFileName();
+                            using (var sourceStream = new FileStream(
+                                fnewXML,
+                                FileMode.Open,
+                                FileAccess.Read,
+                                FileShare.ReadWrite)) // Важно!
+                            {
+                                using (var tempStream = File.Create(tempFile))
+                                {
+                                    await sourceStream.CopyToAsync(tempStream);
+                                }
+                            }
+
+                            //File.Copy(fnewXML, tempFile, overwrite: true);
+                            input = File.ReadAllText(tempFile, Encoding.UTF8);
+                            break;
+                        }
+                        catch (IOException)
+                        {
+                            if (tempFile != null && File.Exists(tempFile))
+                                File.Delete(tempFile);
+                            if (i == maxRetries - 1) throw;
+                            Thread.Sleep(delayMs);
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(input))
+                        return;
+                    (var lst, var output) = ProcessXml(input);
+                    lock (obj)
+                    {
+                        TotalList.UnionWith(lst);
+                        CurPlayItogAdd(carPlayItog, output, ftimestamp);
+                        richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItog} - перезаписан");
                     }
                 }
-                if (string.IsNullOrEmpty(input)) 
-                    return;
-                HashSet<string> lst;
-                string output;
-                //HashSet<string>  lst = GetFilesinXML(input);
-                (lst,output) = ProcessXml(input);
-                TotalList.UnionWith(lst);
-
-                
-                CarPlayItogAdd(carPlayItog, output, ftimestamp);
-                //File.Copy(fnewXML, destinationPath, true);
-                DateTime arrivalTime = DateTime.UtcNow;
-                //File.SetLastWriteTimeUtc(destinationPath, arrivalTime);
-                richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItog}  - перезаписан");
+                finally
+                {
+                    if (tempFile != null && File.Exists(tempFile))
+                        File.Delete(tempFile);
+                }
             }
         }
 
-        public void CarPlayItogAdd(string filePath, string input2, string timestamp)
+        public string ChangeFileName(string fullFileName, string splus)
+        { //с fullpath\A.extension на fullpath\A+B.extension
+            int lastDot = fullFileName.LastIndexOf('.');
+
+            string fileNameWithoutExt;
+            string extension;
+            string newFileName;
+
+            if (lastDot > 0) // расширение есть и не в начале имени (например, не ".gitignore")
+            {
+                fileNameWithoutExt = fullFileName.Substring(0, lastDot);
+                extension = fullFileName.Substring(lastDot); // включая точку
+            }
+            else
+            {
+                // расширения нет
+                fileNameWithoutExt = fullFileName;
+                extension = ""; // или, например, ".txt", если нужно задать явно
+            }
+
+            // Формируем новое имя: добавляем "B" перед расширением
+            newFileName = fileNameWithoutExt + splus + extension;
+            return newFileName;
+        }
+
+        public void CurPlayItogAdd(string filePath, string input2, string timestamp)
         //Prepend Lines To File Editor Safe
-        {//filePath -commomon file of XML  newXML-file with new xml  timestamp -time creating
+        {//filePath -commomon file of XML  input2 strings of  new xml  timestamp -time creating
             string tempFile = Path.GetTempFileName();
             string linesToAdd;
             
@@ -165,25 +269,62 @@ namespace FileMonitor
                 using (var writer = new StreamWriter(tempFile))
                 {
                     writer.WriteLine(linesToAdd);
-
                     if (qComFile < maxComFile) //<25 records
                     {
                         // 2. Дописываем содержимое исходного файла (если он есть)
                         if (File.Exists(filePath))
                         {
-                            // Открываем с FileShare.Read, чтобы не мешать редактору
+                            // Открываем с FileShare.ReadWrite, чтобы не мешать редактору
                             using (var reader = new StreamReader(
-                                new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
+                                new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                             {
                                 string line;
                                 while ((line = reader.ReadLine()) != null)
                                     writer.WriteLine(line);
                             }
                         }
+
                     }
-                    else
-                        qComFile = 0;
                 }
+                // здесь уже есть вся информация во временном файле tempFile 
+                //далее задача обновить существующий 
+
+                if (qComFile >= maxComFile) //<25 records
+                {
+                    qComFile = 0;
+                    string ftstamp;
+                    var fileInfo = new FileInfo(filePath);
+                    try {
+                        ftstamp = fileInfo.LastWriteTime.ToString("yyyyMMdd_HHmmss");
+                    }
+                    catch
+                    {
+                        ftstamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                    }
+                    string carPlayItogDate = ChangeFileName(filePath, "_" + ftstamp);
+                    try
+                    {
+                        using (var source = File.Open(
+                            filePath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.ReadWrite // ← ключевой момент
+                        ))
+                        using (var dest = File.Create(carPlayItogDate))
+                        {
+
+                            source.CopyTo(dest);
+                            richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItogDate}  - создан");
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        // Файл заблокирован даже на чтение — редко, но бывает
+                        // Можно попробовать повторить позже
+                        richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItogDate}  - ошибка при копировании");
+                    }
+
+                    }
 
                 // 3. Атомарная замена (работает на Windows)
                 //File.Replace(tempFile, filePath, null, true);

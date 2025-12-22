@@ -106,5 +106,17 @@ namespace FileMonitor.Properties {
                 this["сbDays"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string tbDelay {
+            get {
+                return ((string)(this["tbDelay"]));
+            }
+            set {
+                this["tbDelay"] = value;
+            }
+        }
     }
 }

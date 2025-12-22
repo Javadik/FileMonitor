@@ -16,7 +16,7 @@ namespace FileMonitor
         LoggerFile loggerFile;
         LoggerPath loggerPath;
 
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer timer1;//flush logfiles + clear files by age
 
         private string lfCarPlay;//loggerFile CarPlay file "E:\\testFilesX\\cur_playing.xml"
         private string lfCopyPath;//loggerFile  CopyPath   "E:\\testFiles3\\"
@@ -95,6 +95,12 @@ namespace FileMonitor
             }
             else
                 сbDays.Text = "90";
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.tbDelay))
+            {
+                tbDelay.Text = Properties.Settings.Default.tbDelay;
+            }
+            else
+                tbDelay.Text = "100";
         }
 
         private void CheckList()
@@ -145,18 +151,20 @@ namespace FileMonitor
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text}' : '{cbCurplay.Text}' \n");
                 pathsOk = false;
             }
-            if (!LoggerFile.PathCheck(ref lfCopyPath))
+            if (!LoggerFile.LowPathCheck(lfCopyPath))
             {
                 richTextBox1.AppendText($"проверьте '{lblfCopy.Text}' : '{cblfCopy.Text}' \n");
                 pathsOk = false;
             }
 
-            try
+            /*try
             {
+
                 Directory.CreateDirectory(Path.GetDirectoryName(lfCarPlayItog));
                 File.WriteAllText(lfCarPlayItog, "");
             }
-            catch
+            catch */
+            if (!LoggerFile.LowPathCheck(lfCarPlayItog))
             {
                 richTextBox1.AppendText($"проверьте '{lbCarplay.Text} ' итоговый : '{cbCurplayItog.Text}' \n");
                 pathsOk = false;
@@ -182,7 +190,7 @@ namespace FileMonitor
                 richTextBox1.AppendText($"проверьте '{lbLogger.Text}' : '{cbLogger.Text}' \n");
                 pathsOk = false;
             }
-            if (!LoggerPath.PathCheck(ref lpCopyPath))
+            if (!LoggerPath.LowPathCheck(lpCopyPath))
             {
                 richTextBox1.AppendText($"проверьте '{lblpCopy.Text}' : '{cblpCopy.Text}' \n");
                 pathsOk = false;
@@ -202,6 +210,14 @@ namespace FileMonitor
             string maxA = сbDays.Text;
             maxAge = OldFile.GetMaxAge(ref maxA);
             сbDays.Text = maxA;
+            if (!int.TryParse(tbDelay.Text, out int delay) || delay <= 0)
+            {
+                tbDelay.Text = LoggerFile.taskDelay.ToString();
+            }
+            else
+            {
+                LoggerFile.taskDelay = delay;
+            }
             clearOldFiles();
 
             splitContainer1.Panel1.Enabled = false;
@@ -283,6 +299,7 @@ namespace FileMonitor
             Properties.Settings.Default.сbCarPlayItogReplace = сbCarPlayItogReplace.Text;
             Properties.Settings.Default.cbCurplayItog = cbCurplayItog.Text;
             Properties.Settings.Default.сbDays = сbDays.Text;
+            Properties.Settings.Default.tbDelay = tbDelay.Text;
 
             Properties.Settings.Default.Save();
         }
@@ -305,6 +322,18 @@ namespace FileMonitor
             catch
             {
                 return false;
+            }
+        }
+
+        private void tbDelay_Validated(object sender, EventArgs e)
+        {
+            if (!int.TryParse(tbDelay.Text, out int delay) || delay <= 0)
+            {
+                tbDelay.Text = LoggerFile.taskDelay.ToString();
+            }
+            else 
+            {
+                LoggerFile.taskDelay = delay;
             }
         }
     }
