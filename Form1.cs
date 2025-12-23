@@ -15,6 +15,7 @@ namespace FileMonitor
         //Thread loggerThread;
         LoggerFile loggerFile;
         LoggerPath loggerPath;
+        LiveBCast liveBCast;
 
         private System.Windows.Forms.Timer timer1;//flush logfiles + clear files by age
 
@@ -224,6 +225,9 @@ namespace FileMonitor
             timer1.Start();
             btStart.Enabled = false;
             btStop.Enabled = true;
+
+            liveBCast = new LiveBCast(Path.GetDirectoryName(lfCarPlayItog), lpCopyPath, richTextBox1);
+            liveBCast.StartMonitoring();
         }
 
         private void btStop_Click(object sender, EventArgs e)
@@ -235,6 +239,7 @@ namespace FileMonitor
             timer1.Stop();
             btStart.Enabled = true;
             btStop.Enabled = false;
+            liveBCast.StopMonitoring();
         }
 
 
