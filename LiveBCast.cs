@@ -72,7 +72,11 @@ namespace FileMonitor
                     if (nextCommentIndex > 0)
                     {
                         var actualBlock = blockContent.Substring(0, nextCommentIndex);
-                        ProcessBlock(actualBlock);
+                        if (!ProcessBlock(actualBlock)) // Если блок содержит вхождение, пропускаем последующие блоки с вхождениями
+                        {
+                            // Пропускаем все последующие блоки, которые содержат вхождения ключевого слова
+                            i = SkipConsecutiveKeywordBlocks(blocks, i, nextCommentIndex);
+                        }
                     }
                     else
                     {
@@ -89,8 +93,8 @@ namespace FileMonitor
             }
         }
 
-        // Обработка одного XML-блока
-        private void ProcessBlock(string blockContent)
+        // Обработка одного XML-блока, возвращает true если блок не содержит ключевого слова
+        private bool ProcessBlock(string blockContent)
         {
             try
             {
@@ -113,38 +117,28 @@ namespace FileMonitor
                 var nameNodes = block.SelectNodes("//NAME");
                 var startTimeNodes = block.SelectNodes("//START_TIME");
 
-                // Ищем последовательные блоки с ключевой фразой
-                XmlNode lastNameNode = null;
-                XmlNode lastStartTimeNode = null;
+                // Проверяем, есть ли в блоке вхождения ключевого слова
+                bool hasKeyword = false;
                 XmlNode firstNameNode = null;
                 XmlNode firstStartTimeNode = null;
-                bool foundSequence = false;
 
                 for (int i = 0; i < nameNodes.Count; i++)
                 {
                     if (nameNodes[i].InnerText.Contains(_searchKeyword))
                     {
-                        if (!foundSequence)
+                        if (!hasKeyword)
                         {
-                            // Это начало последовательности
+                            // Это первое вхождение в блоке
                             firstNameNode = nameNodes[i];
                             firstStartTimeNode = startTimeNodes[i];
-                            foundSequence = true;
+                            hasKeyword = true;
                         }
-                        // Запоминаем последний элемент последовательности
-                        lastNameNode = nameNodes[i];
-                        lastStartTimeNode = startTimeNodes[i];
-                    }
-                    else if (foundSequence)
-                    {
-                        // Последовательность закончилась, выходим из цикла
-                        break;
                     }
                 }
 
-                if (foundSequence && firstNameNode != null && firstStartTimeNode != null)
+                if (hasKeyword && firstNameNode != null && firstStartTimeNode != null)
                 {
-                    // Используем время из первого элемента последовательности
+                    // Используем время из первого элемента с вхождением
                     var startTimeText = firstStartTimeNode.InnerText;
                     DateTime startTime;
 
@@ -177,7 +171,7 @@ namespace FileMonitor
                             var mp3File = files[0];
 
                             // Переименование файла
-                            var newFileName = Path.Combine(_copyFolder, lastNameNode.InnerText + ".mp3");
+                            var newFileName = Path.Combine(_copyFolder, firstNameNode.InnerText + ".mp3");
                             File.Move(mp3File, newFileName);
 
                             // Обновление дашборда
@@ -195,14 +189,19 @@ namespace FileMonitor
                         UpdateDashboard("Файл эфира не найден в указанном интервале");
                     }
                 }
+
+                // Возвращаем true, если блок не содержал ключевое слово
+                return !hasKeyword;
             }
             catch (XmlException)
             {
                 // Игнорируем ошибки парсинга XML, так как блок может быть неполным
+                return true; // Возвращаем true, чтобы продолжить обработку
             }
             catch (Exception ex)
             {
                 UpdateDashboard($"Ошибка обработки блока: {ex.Message}");
+                return true; // Возвращаем true, чтобы продолжить обработку
             }
         }
 
@@ -210,7 +209,85 @@ namespace FileMonitor
         private void UpdateDashboard(string message)
         {
             // Реализация вывода сообщения в дашборд
-            _richTextBox.AppendText(message);
+            _richTextBox.AppendText(message + Environment.NewLine);
+        }
+
+        // Метод для пропуска последовательных блоков с вхождениями ключевого слова
+        private int SkipConsecutiveKeywordBlocks(string[] blocks, int currentIndex, int nextCommentIndex)
+        {
+            int i = currentIndex;
+            // Пропускаем текущий блок, так как он уже был обработан
+            i++;
+
+            // Продолжаем пропускать блоки, пока они содержат вхождения ключевого слова
+            while (i < blocks.Length)
+            {
+                var nextBlockContent = "<!--" + blocks[i]; // Восстанавливаем начальный комментарий
+
+                // Находим конец текущего блока (до следующего комментария или до конца)
+                var nextNextCommentIndex = nextBlockContent.IndexOf("<!--", 1);
+                var actualNextBlock = nextBlockContent;
+                if (nextNextCommentIndex > 0)
+                {
+                    actualNextBlock = nextBlockContent.Substring(0, nextNextCommentIndex);
+                }
+
+                // Проверяем, содержит ли следующий блок ключевое слово
+                if (!BlockContainsKeyword(actualNextBlock))
+                {
+                    // Если блок не содержит ключевое слово, останавливаем пропуск
+                    break;
+                }
+
+                i++;
+            }
+
+            return i - 1; // Возвращаем индекс, с которого нужно продолжить обработку
+        }
+
+        // Вспомогательный метод для проверки, содержит ли блок ключевое слово
+        private bool BlockContainsKeyword(string blockContent)
+        {
+            try
+            {
+                // Удаление начального комментария перед парсингом XML
+                var cleanContent = blockContent;
+                if (cleanContent.StartsWith("<!--"))
+                {
+                    var endCommentIndex = cleanContent.IndexOf("-->");
+                    if (endCommentIndex > 0)
+                    {
+                        cleanContent = cleanContent.Substring(endCommentIndex + 3).Trim();
+                    }
+                }
+
+                // Парсинг блока как XML
+                var block = new XmlDocument();
+                block.LoadXml(cleanContent);
+
+                // Поиск всех элементов с тегом NAME
+                var nameNodes = block.SelectNodes("//NAME");
+
+                // Проверяем, есть ли в блоке вхождения ключевого слова
+                for (int i = 0; i < nameNodes.Count; i++)
+                {
+                    if (nameNodes[i].InnerText.Contains(_searchKeyword))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            catch (XmlException)
+            {
+                // Игнорируем ошибки парсинга XML, так как блок может быть неполным
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
