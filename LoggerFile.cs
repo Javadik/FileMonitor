@@ -110,7 +110,7 @@ namespace FileMonitor
             string res;
             res= carPlayItogReplace + Path.GetFileName(inst);
             return res;
-        } 
+        }
         */
         private string fReplace(string inst)
         {
@@ -151,7 +151,7 @@ namespace FileMonitor
                 //string ftimestamp = File.GetLastWriteTime(fnewXML).ToString("yyyyMMdd_HHmmss");
                 var fileInfo = new FileInfo(fnewXML);
                 string ftimestamp = fileInfo.LastWriteTime.ToString("yyyyMMdd_HHmmss");
-                
+
                 //if (!IsFileReady(fnewXML))
                //     return; // Файл занят, пропускаем
 
@@ -160,6 +160,9 @@ namespace FileMonitor
                 string input = null;
                 string tempFile = null;
 
+                // Добавляем информацию о процессе обработки
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Начата обработка файла: {Path.GetFileName(fnewXML)}"); // KCode edit
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Размер файла: {new FileInfo(fnewXML).Length} байт"); // KCode edit
 
                 /*
                 for (int i = 0; i < maxRetries; i++)
@@ -203,8 +206,26 @@ namespace FileMonitor
                             input = File.ReadAllText(tempFile, Encoding.UTF8);
                             break;
                         }
-                        catch (IOException)
+                        catch (IOException ex)
                         {
+                            //richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка ввода-вывода при чтении файла {Path.GetFileName(fnewXML)}: {ex.Message}"); // KCode edit
+                            if (tempFile != null && File.Exists(tempFile))
+                                File.Delete(tempFile);
+                            if (i == maxRetries - 1) throw;
+                            Thread.Sleep(delayMs);
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            //richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка доступа к файлу {Path.GetFileName(fnewXML)}: {ex.Message}"); // KCode edit
+                            if (tempFile != null && File.Exists(tempFile))
+                                File.Delete(tempFile);
+                            if (i == maxRetries - 1) throw;
+                            Thread.Sleep(delayMs);
+                        }
+                        catch (Exception ex)
+                        {
+                            //richList.Add($"{DateTime.Now.ToString(fmtData)} Неизвестная ошибка при чтении файла {Path.GetFileName(fnewXML)}: {ex.Message}"); // KCode edit
+                            //richList.Add($"{DateTime.Now.ToString(fmtData)} Тип ошибки: {ex.GetType().Name}"); // KCode edit
                             if (tempFile != null && File.Exists(tempFile))
                                 File.Delete(tempFile);
                             if (i == maxRetries - 1) throw;
@@ -213,7 +234,13 @@ namespace FileMonitor
                     }
 
                     if (string.IsNullOrEmpty(input))
+                    {
+                        //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(fnewXML)} пустой или не может быть прочитан"); // KCode edit
                         return;
+                    }
+
+                    //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(fnewXML)} успешно прочитан, длина: {input.Length} символов"); // KCode edit
+
                     (var lst, var output) = ProcessXml(input);
                     lock (obj)
                     {
@@ -222,11 +249,20 @@ namespace FileMonitor
                         richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItog} - перезаписан");
                     }
                 }
+                catch (Exception ex)
+                {/*
+                    richList.Add($"{DateTime.Now.ToString(fmtData)} Критическая ошибка при обработке файла {Path.GetFileName(fnewXML)}: {ex.Message}"); // KCode edit
+                    richList.Add($"{DateTime.Now.ToString(fmtData)} Тип ошибки: {ex.GetType().Name}"); // KCode edit
+                    richList.Add($"{DateTime.Now.ToString(fmtData)} Стек вызова: {ex.StackTrace}"); // KCode edit
+                    */
+                }
                 finally
                 {
                     if (tempFile != null && File.Exists(tempFile))
                         File.Delete(tempFile);
                 }
+
+                //richList.Add($"{DateTime.Now.ToString(fmtData)} Обработка файла {Path.GetFileName(fnewXML)} завершена"); // KCode edit
             }
         }
 
@@ -260,11 +296,14 @@ namespace FileMonitor
         {//filePath -commomon file of XML  input2 strings of  new xml  timestamp -time creating
             string tempFile = Path.GetTempFileName();
             string linesToAdd;
-            
+
             linesToAdd = "<!--" + timestamp + "-->\n" + input2;
 
             try
             {
+                //richList.Add($"{DateTime.Now.ToString(fmtData)} Начата запись в итоговый файл: {Path.GetFileName(filePath)}"); // KCode edit
+                //richList.Add($"{DateTime.Now.ToString(fmtData)} Длина добавляемых данных: {linesToAdd.Length} символов"); // KCode edit
+
                 // 1. Записываем новые строки во временный файл
                 using (var writer = new StreamWriter(tempFile))
                 {
@@ -286,8 +325,8 @@ namespace FileMonitor
 
                     }
                 }
-                // здесь уже есть вся информация во временном файле tempFile 
-                //далее задача обновить существующий 
+                // здесь уже есть вся информация во временном файле tempFile
+                //далее задача обновить существующий
 
                 if (qComFile >= maxComFile) //<25 records
                 {
@@ -321,7 +360,11 @@ namespace FileMonitor
                     {
                         // Файл заблокирован даже на чтение — редко, но бывает
                         // Можно попробовать повторить позже
-                        richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItogDate}  - ошибка при копировании");
+                        richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItogDate}  - ошибка при копировании: {ex.Message}"); // KCode edit
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItogDate}  - ошибка доступа при копировании: {ex.Message}"); // KCode edit
                     }
 
                     }
@@ -329,16 +372,29 @@ namespace FileMonitor
                 // 3. Атомарная замена (работает на Windows)
                 //File.Replace(tempFile, filePath, null, true);
                 File.Copy(tempFile, filePath, overwrite: true);
+                richList.Add($"{DateTime.Now.ToString(fmtData)} {Path.GetFileName(filePath)} успешно обновлен"); // KCode edit
                 qComFile++;
             }
-            catch
+            catch (UnauthorizedAccessException ex)
             {
-                richList.Add($"{DateTime.Now.ToString(fmtData)} {carPlayItog}  - ошибка при перезаписи");
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка доступа при записи в файл {Path.GetFileName(filePath)}: {ex.Message}"); // KCode edit
+            }
+            catch (IOException ex)
+            {
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка ввода-вывода при записи в файл {Path.GetFileName(filePath)}: {ex.Message}"); // KCode edit
+            }
+            catch (Exception ex)
+            {
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Неизвестная ошибка при записи в файл {Path.GetFileName(filePath)}: {ex.Message}"); // KCode edit
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Тип ошибки: {ex.GetType().Name}"); // KCode edit
             }
             finally
             {
                 if (File.Exists(tempFile))
+                {
                     File.Delete(tempFile);
+                    richList.Add($"{DateTime.Now.ToString(fmtData)} Временный файл удален"); // KCode edit
+                }
             }
         }
 

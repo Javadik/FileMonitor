@@ -52,7 +52,7 @@ namespace FileMonitor
             watcher.Created += Watcher_Created;
             watcher.Changed += Watcher_Changed;
             watcher.Renamed += Watcher_Renamed;
-            
+
             timer = new System.Timers.Timer(timerPeriod) { AutoReset = true, Enabled = false };
             timer.Elapsed += (s, e) => TimerProc();
         }
@@ -88,7 +88,7 @@ namespace FileMonitor
             _lastReadTime = DateTime.Now;
             Thread.Sleep(100);
             RecordEntry(fileEvent, filePath);
-            
+
         }
         // создание файлов
         public void Watcher_Created(object sender, FileSystemEventArgs e)
@@ -141,28 +141,40 @@ namespace FileMonitor
             {
                 isPath = File.GetAttributes(filePath).HasFlag(FileAttributes.Directory);
             }
-            catch
+            catch (Exception ex)
             {
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка при определении типа объекта {filePath}: {ex.Message}"); // KCode edit
                 return;
             }
             if (isPath)
+            {
+                richList.Add($"{DateTime.Now.ToString(fmtData)} Обнаружена папка {filePath}, пропускаем"); // KCode edit
                 return;
+            }
+
+            richList.Add($"{DateTime.Now.ToString(fmtData)} Обработка события '{fileEvent}' для файла: {Path.GetFileName(filePath)}"); // KCode edit
+
             switch (fileEvent)
             {
                 case pereim:
                     changed = true;
+                    //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(filePath)} был переименован"); // KCode edit
                     break;
                 case "изменен":
                     changed = true;
+                    //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(filePath)} был изменен"); // KCode edit
                     break;
                 case "создан":
                     changed = true;
+                    //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(filePath)} был создан"); // KCode edit
                     break;
                 case "удален":
+                    //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(filePath)} был удален"); // KCode edit
                     break;
             }
             if (changed) {
                 TotalList.Add(filePath);
+                //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл {Path.GetFileName(filePath)} добавлен в очередь на обработку"); // KCode edit
             }
         }
 
@@ -173,39 +185,62 @@ namespace FileMonitor
             List<string> newFiles = new List<string>();
             string newFile;
             Type callerType = this.GetType();
-            if(callerType.Name == "LoggerPath") 
+            if(callerType.Name == "LoggerPath")
                 path = true;
+
+            //richList.Add($"{DateTime.Now.ToString(fmtData)} Начата операция копирования {TotalList.Count} файлов"); // KCode edit
+
             foreach (var file in TotalList)
             {
+                //richList.Add($"{DateTime.Now.ToString(fmtData)} Обработка файла: {Path.GetFileName(file)}"); // KCode edit
+
                 if (File.Exists(file))
                 {
                     if (!path)
                     {
                         newFile = PathCopy + Path.GetFileName(file);
                     }else
-                        newFile = PathCopy + file.Replace(wDir, ""); 
+                        newFile = PathCopy + file.Replace(wDir, "");
                     try
                     {
                         string destinationDir = Path.GetDirectoryName(newFile);
 
                         if (!Directory.Exists(destinationDir))
+                        {
                             Directory.CreateDirectory(destinationDir);
+                            richList.Add($"{DateTime.Now.ToString(fmtData)} Создана директория: {destinationDir}"); // KCode edit
+                        }
 
                         File.Copy(file, newFile, true);
                         DateTime arrivalTime = DateTime.UtcNow;
                         File.SetLastWriteTimeUtc(newFile, arrivalTime);
 
                         newFiles.Add($"{DateTime.Now.ToString(fmtData)} {newFile}");
+                        richList.Add($"{DateTime.Now.ToString(fmtData)} Файл успешно скопирован: {Path.GetFileName(newFile)}"); // KCode edit
                         count++;
                     }
+                    catch (UnauthorizedAccessException ex) {
+                        newFiles.Add($"{DateTime.Now.ToString(fmtData)} Ошибка доступа при копировании файла: {newFile}");
+                        //richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка доступа при копировании {Path.GetFileName(newFile)}: {ex.Message}"); // KCode edit
+                    }
+                    catch (IOException ex) {
+                        newFiles.Add($"{DateTime.Now.ToString(fmtData)} Ошибка ввода-вывода при копировании файла: {newFile}");
+                        //richList.Add($"{DateTime.Now.ToString(fmtData)} Ошибка ввода-вывода при копировании {Path.GetFileName(newFile)}: {ex.Message}"); // KCode edit
+                    }
                     catch (Exception ex) {
-                        newFiles.Add($"{DateTime.Now.ToString(fmtData)} возникла ошибка при записи файла: {newFile}");
+                        newFiles.Add($"{DateTime.Now.ToString(fmtData)} Возникла ошибка при копировании файла: {newFile}");
+                        //richList.Add($"{DateTime.Now.ToString(fmtData)} Неизвестная ошибка при копировании {Path.GetFileName(newFile)}: {ex.Message}"); // KCode edit
+                        //richList.Add($"{DateTime.Now.ToString(fmtData)} Тип ошибки: {ex.GetType().Name}"); // KCode edit
                     }
                 }
-                else { 
-                    newFiles.Add($"{DateTime.Now.ToString(fmtData)} такого файла не существует: {file}"); }
+                else {
+                    newFiles.Add($"{DateTime.Now.ToString(fmtData)} Такого файла не существует: {file}");
+                    //richList.Add($"{DateTime.Now.ToString(fmtData)} Файл не найден: {Path.GetFileName(file)}"); } // KCode edit
+                }
             }
-            TotalList.Clear();  
+            TotalList.Clear();
+            //richList.Add($"{DateTime.Now.ToString(fmtData)} Завершена операция копирования, обработано файлов: {count}"); // KCode edit
+            //newFiles.Add($"{DateTime.Now.ToString(fmtData)} Завершена операция копирования, обработано файлов: {count}"); // KCode edit
             return newFiles;
         }
 
@@ -216,19 +251,19 @@ namespace FileMonitor
                 timeTimers = 0;
                 richList.AddRange( CopyFiles());
             }
-            
+
         }
 
         public static bool FileCheck(string filePath)
         {
-            if (!File.Exists(filePath)) 
+            if (!File.Exists(filePath))
                 return false;
             return true;
         }
 
         private static bool IsValidWindowsPathWithTrailingSlash(ref string path)
         {//определяет валидность пути, но не существование!
-            if (string.IsNullOrEmpty(path)) 
+            if (string.IsNullOrEmpty(path))
                 return false;
             if  (!path.EndsWith("\\"))
                 path += "\\";
@@ -239,7 +274,7 @@ namespace FileMonitor
                 string fullPath = Path.GetFullPath(path);
                 if (Directory.Exists(fullPath))
                     return Path.IsPathRooted(path); // true для "C:\...", "\\Server\..."
-                else 
+                else
                     return false;
 
             }
@@ -250,7 +285,7 @@ namespace FileMonitor
         }
         public static bool PathCheck(ref string filePath)
         {
-            
+
             return IsValidWindowsPathWithTrailingSlash(ref filePath);
         }
 
