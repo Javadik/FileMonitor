@@ -31,11 +31,13 @@
             btStart = new Button();
             btStop = new Button();
             splitContainer1 = new SplitContainer();
+            tbLive = new TextBox();
+            label5 = new Label();
             label3 = new Label();
             tbDelay = new TextBox();
             label4 = new Label();
             label2 = new Label();
-            сbDays = new TextBox();
+            tbDays = new TextBox();
             label1 = new Label();
             lbCarPlayItogReplace = new Label();
             сbCarPlayItogReplace = new ComboBox();
@@ -81,7 +83,8 @@
             // 
             // splitContainer1
             // 
-            splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainer1.FixedPanel = FixedPanel.Panel1;
             splitContainer1.Location = new Point(0, 53);
             splitContainer1.Margin = new Padding(4);
             splitContainer1.Name = "splitContainer1";
@@ -89,11 +92,13 @@
             // 
             // splitContainer1.Panel1
             // 
+            splitContainer1.Panel1.Controls.Add(tbLive);
+            splitContainer1.Panel1.Controls.Add(label5);
             splitContainer1.Panel1.Controls.Add(label3);
             splitContainer1.Panel1.Controls.Add(tbDelay);
             splitContainer1.Panel1.Controls.Add(label4);
             splitContainer1.Panel1.Controls.Add(label2);
-            splitContainer1.Panel1.Controls.Add(сbDays);
+            splitContainer1.Panel1.Controls.Add(tbDays);
             splitContainer1.Panel1.Controls.Add(label1);
             splitContainer1.Panel1.Controls.Add(lbCarPlayItogReplace);
             splitContainer1.Panel1.Controls.Add(сbCarPlayItogReplace);
@@ -111,15 +116,31 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(richTextBox1);
-            splitContainer1.Size = new Size(1117, 537);
-            splitContainer1.SplitterDistance = 280;
+            splitContainer1.Size = new Size(1007, 569);
+            splitContainer1.SplitterDistance = 276;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 3;
+            // 
+            // tbLive
+            // 
+            tbLive.Location = new Point(716, 60);
+            tbLive.Name = "tbLive";
+            tbLive.Size = new Size(277, 25);
+            tbLive.TabIndex = 19;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(716, 12);
+            label5.Name = "label5";
+            label5.Size = new Size(190, 17);
+            label5.TabIndex = 18;
+            label5.Text = "Фраза поиска прямого эфира:";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(88, 49);
+            label3.Location = new Point(90, 68);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new Size(84, 17);
@@ -128,7 +149,7 @@
             // 
             // tbDelay
             // 
-            tbDelay.Location = new Point(18, 39);
+            tbDelay.Location = new Point(20, 58);
             tbDelay.Margin = new Padding(4);
             tbDelay.Name = "tbDelay";
             tbDelay.Size = new Size(64, 25);
@@ -149,30 +170,31 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(609, 44);
+            label2.Location = new Point(607, 66);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(36, 17);
             label2.TabIndex = 14;
             label2.Text = "дней";
             // 
-            // сbDays
+            // tbDays
             // 
-            сbDays.Location = new Point(538, 34);
-            сbDays.Margin = new Padding(4);
-            сbDays.Name = "сbDays";
-            сbDays.Size = new Size(64, 25);
-            сbDays.TabIndex = 13;
-            сbDays.Text = "90";
-            сbDays.Validated += сbDays_Validated;
+            tbDays.Location = new Point(535, 58);
+            tbDays.Margin = new Padding(4);
+            tbDays.Name = "tbDays";
+            tbDays.Size = new Size(64, 25);
+            tbDays.TabIndex = 13;
+            tbDays.Text = "90";
+            tbDays.Validated += сbDays_Validated;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(535, 6);
+            label1.Location = new Point(535, 12);
             label1.Margin = new Padding(4, 0, 4, 0);
+            label1.MaximumSize = new Size(160, 0);
             label1.Name = "label1";
-            label1.Size = new Size(279, 17);
+            label1.Size = new Size(145, 34);
             label1.TabIndex = 12;
             label1.Text = "Файлы в директориях назначения хранятся : ";
             // 
@@ -298,27 +320,29 @@
             // 
             // richTextBox1
             // 
-            richTextBox1.Dock = DockStyle.Fill;
-            richTextBox1.Location = new Point(0, 0);
+            richTextBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            richTextBox1.Location = new Point(0, 3);
             richTextBox1.Margin = new Padding(4);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(1117, 252);
-            richTextBox1.TabIndex = 0;
+            richTextBox1.Size = new Size(1007, 277);
+            richTextBox1.TabIndex = 1;
             richTextBox1.Text = "";
             // 
             // FileMonitor
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1119, 589);
+            ClientSize = new Size(1009, 620);
             Controls.Add(splitContainer1);
             Controls.Add(btStop);
             Controls.Add(btStart);
             Margin = new Padding(4);
+            MinimumSize = new Size(1025, 400);
             Name = "FileMonitor";
-            Text = "FileMonitor 1.4";
+            Text = "FileMonitor 1.40";
             FormClosing += FileMonitor_FormClosing;
             Load += FileMonitor_Load;
+            Validated += FileMonitor_Validated;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
@@ -333,7 +357,6 @@
         private System.Windows.Forms.Button btStart;
         private System.Windows.Forms.Button btStop;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.Label lbLogger;
         private System.Windows.Forms.ComboBox cbLogger;
         private System.Windows.Forms.Label lblpCopy;
@@ -350,8 +373,11 @@
         private System.Windows.Forms.TextBox tbDelay;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox сbDays;
+        private System.Windows.Forms.TextBox tbDays;
         private System.Windows.Forms.Label label1;
+        private RichTextBox richTextBox1;
+        private Label label5;
+        private TextBox tbLive;
     }
 }
 

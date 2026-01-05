@@ -20,10 +20,13 @@
     <Setting Name="cbCurplayItog" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="сbDays" Type="System.String" Scope="User">
+    <Setting Name="tbDays" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="tbDelay" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="tbLive" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

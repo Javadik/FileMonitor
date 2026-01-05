@@ -90,18 +90,24 @@ namespace FileMonitor
             else
                 cbCurplayItog.Text = "E:\\testFilesY\\cur_playingComm.xml";
 
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.сbDays))
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.tbDays))
             {
-                сbDays.Text = Properties.Settings.Default.сbDays;
+                tbDays.Text = Properties.Settings.Default.tbDays;
             }
             else
-                сbDays.Text = "90";
+                tbDays.Text = "90";
             if (!string.IsNullOrEmpty(Properties.Settings.Default.tbDelay))
             {
                 tbDelay.Text = Properties.Settings.Default.tbDelay;
             }
             else
                 tbDelay.Text = "100";
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.tbLive))
+            {
+                tbLive.Text = Properties.Settings.Default.tbLive;
+            }
+            else
+                tbLive.Text = "прямой эфир";
         }
 
         private void CheckList()
@@ -175,7 +181,7 @@ namespace FileMonitor
             {
                 LoggerFile.httpPath = true;
             }
-            else if(!LoggerFile.PathCheck(ref lfCarPlayItogReplace))
+            else if (!LoggerFile.PathCheck(ref lfCarPlayItogReplace))
             {
                 richTextBox1.AppendText($"проверьте '{lbCarPlayItogReplace.Text}' : '{сbCarPlayItogReplace.Text}' \n");
                 pathsOk = false;
@@ -200,7 +206,7 @@ namespace FileMonitor
             if (!pathsOk)
                 return;
             cblfCopy.Text = lfCopyPath; //  тк могут измениться из-за ref
-           // сbCarPlayItogReplace.Text = lfCarPlayItogReplace; //  тк могут измениться из-за ref
+                                        // сbCarPlayItogReplace.Text = lfCarPlayItogReplace; //  тк могут измениться из-за ref
             loggerFile = new LoggerFile(lfCarPlay, lfCopyPath, lfCarPlayItog, 10000, 2, lfCarPlayItogReplace);
             loggerFile.Start();
 
@@ -208,9 +214,9 @@ namespace FileMonitor
             cbLogger.Text = lpLoggerPath;   //  тк могут измениться из-за ref
             loggerPath = new LoggerPath(lpLoggerPath, lpCopyPath, 19000, 1);
             loggerPath.Start();
-            string maxA = сbDays.Text;
+            string maxA = tbDays.Text;
             maxAge = OldFile.GetMaxAge(ref maxA);
-            сbDays.Text = maxA;
+            tbDays.Text = maxA;
             if (!int.TryParse(tbDelay.Text, out int delay) || delay <= 0)
             {
                 tbDelay.Text = LoggerFile.taskDelay.ToString();
@@ -225,8 +231,8 @@ namespace FileMonitor
             timer1.Start();
             btStart.Enabled = false;
             btStop.Enabled = true;
-
-            liveBCast = new LiveBCast(Path.GetDirectoryName(lfCarPlayItog), lpCopyPath, richTextBox1);
+            
+            liveBCast = new LiveBCast(Path.GetDirectoryName(lfCarPlayItog), lpCopyPath, richTextBox1, tbLive.Text);
             liveBCast.StartMonitoring();
         }
 
@@ -255,6 +261,7 @@ namespace FileMonitor
         private void FileMonitor_Load(object sender, EventArgs e)
         {
             // logger.Stop();
+            btStart_Click(null, null);
         }
 
         private void cbLogger_Validated(object sender, EventArgs e)
@@ -284,9 +291,9 @@ namespace FileMonitor
 
         private void сbDays_Validated(object sender, EventArgs e)
         {
-            string maxA = сbDays.Text;
+            string maxA = tbDays.Text;
             maxAge = OldFile.GetMaxAge(ref maxA);
-            сbDays.Text = maxA;
+            tbDays.Text = maxA;
         }
 
         private void сbCarPlayItogReplace_Validated(object sender, EventArgs e)
@@ -303,8 +310,9 @@ namespace FileMonitor
             Properties.Settings.Default.cblfCopy = cblfCopy.Text;
             Properties.Settings.Default.сbCarPlayItogReplace = сbCarPlayItogReplace.Text;
             Properties.Settings.Default.cbCurplayItog = cbCurplayItog.Text;
-            Properties.Settings.Default.сbDays = сbDays.Text;
+            Properties.Settings.Default.tbDays = tbDays.Text;
             Properties.Settings.Default.tbDelay = tbDelay.Text;
+            Properties.Settings.Default.tbLive = tbLive.Text;
 
             Properties.Settings.Default.Save();
         }
@@ -336,10 +344,15 @@ namespace FileMonitor
             {
                 tbDelay.Text = LoggerFile.taskDelay.ToString();
             }
-            else 
+            else
             {
                 LoggerFile.taskDelay = delay;
             }
         }
+
+        private void FileMonitor_Validated(object sender, EventArgs e)
+        {
+            
+;        }
     }
 }

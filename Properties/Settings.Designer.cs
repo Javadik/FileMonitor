@@ -98,12 +98,12 @@ namespace FileMonitor.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string сbDays {
+        public string tbDays {
             get {
-                return ((string)(this["сbDays"]));
+                return ((string)(this["tbDays"]));
             }
             set {
-                this["сbDays"] = value;
+                this["tbDays"] = value;
             }
         }
         
@@ -116,6 +116,18 @@ namespace FileMonitor.Properties {
             }
             set {
                 this["tbDelay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string tbLive {
+            get {
+                return ((string)(this["tbLive"]));
+            }
+            set {
+                this["tbLive"] = value;
             }
         }
     }
