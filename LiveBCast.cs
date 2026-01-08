@@ -60,7 +60,7 @@ namespace FileMonitor
                 // Поиск файлов за последний час с проверкой шаблона и времени
                 var files = Directory.GetFiles(_loggerFolder, "full_playing_*.xml")
                     .Where(file =>
-                        File.GetLastWriteTime(file) <= DateTime.UtcNow.AddHours(-1) &&
+                        File.GetLastWriteTime(file) <= DateTime.UtcNow.AddMinutes(-1) &&  //AddHours(-1) AddMinutes
                         System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(file), @"^full_playing_\d{8}_\d{6}\.xml$")
                     ).ToArray();
 
