@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ELEM_LIST WRITE_TIME="2025-12-25 11:34:24.501">
+  <ELEM PLAYER_ID="OBJID_XPLAIR" PLAYER_NAME="Radio1" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - вжик СВО</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>116213</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Вжик 4.mp3.mp2</FILE_NAME>
+    <DURATION>00:00:03</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_XPLAIR" PLAYER_NAME="Radio1" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE>П</TYPE>
+    <NAME>Самое время! - ГЗ - 10 01 Люба Акция</NAME>
+    <ARTIST>Володина Любовь</ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM>Волонтёры Подмосковья оказывают активную поддержку военнослужащим и их семьям. Акция «Доброе дело»</ALBUM>
+    <DBID>156939</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время! - ГЗ - 10 01  Люба Акция.mp3</FILE_NAME>
+    <DURATION>00:02:42</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST1" PLAYER_NAME="Плеер C" SCH_ID="3" SCH_NAME="Default" STATUS="playing">
+    <START_TIME>11:32:43</START_TIME>
+    <START_DATE>2025-12-25</START_DATE>
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - подложка 2 (серьезно - нейтральная)</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>79785</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время - бэк 2 (серьезно-нейтральный).mp3.mp3</FILE_NAME>
+    <DURATION>00:27:22</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST1" PLAYER_NAME="Плеер C" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - подложка 4 (бизнес, пафосная)</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>79787</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время - бэк 4 (бизнес-пафосная).mp3.mp3</FILE_NAME>
+    <DURATION>00:27:04</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST1" PLAYER_NAME="Плеер C" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - подложка 1 (динамичная, позитивная)</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>79784</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время - бэк 1 (динамичный позитивный).mp3.mp3</FILE_NAME>
+    <DURATION>00:27:04</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST1" PLAYER_NAME="Плеер C" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - подложка 3 (светлая, позитивная)</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>79786</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время - бэк 3 (светлая позитивная).mp3.mp3</FILE_NAME>
+    <DURATION>00:27:27</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST1" PLAYER_NAME="Плеер C" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - подложка 6 (спорт)</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>93401</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Руза - Бэк.mp3.mp3</FILE_NAME>
+    <DURATION>00:16:56</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST2" PLAYER_NAME="Плеер D" SCH_ID="3" SCH_NAME="Default" STATUS="playing">
+    <START_TIME>11:34:24</START_TIME>
+    <START_DATE>2025-12-25</START_DATE>
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - вжик СВО</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>116213</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Вжик 4.mp3.mp2</FILE_NAME>
+    <DURATION>00:00:03</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST2" PLAYER_NAME="Плеер D" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE></BLK_TYPE>
+    <TYPE></TYPE>
+    <NAME>Стоп</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID></DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/</FILE_NAME>
+    <DURATION>00:00:00</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST2" PLAYER_NAME="Плеер D" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE></TYPE>
+    <NAME>ДЛЯ ТЕМ ПР!!!</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID></DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/</FILE_NAME>
+    <DURATION>00:00:00</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST2" PLAYER_NAME="Плеер D" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ПР - заставка начала программы NEW</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM>Интерактивный информационный эфир</ALBUM>
+    <DBID>149772</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время_Заставка_-23LUFS.mp3.mp3.mp2</FILE_NAME>
+    <DURATION>00:00:07</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_PLIST2" PLAYER_NAME="Плеер D" SCH_ID="3" SCH_NAME="Default" STATUS="preloaded">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ПР - прямой эфир 60 минут</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>159157</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Тишина 60 мин.mp3</FILE_NAME>
+    <DURATION>00:32:13</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_XPLAIR" PLAYER_NAME="" SCH_ID="3" SCH_NAME="Default">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE>Д</TYPE>
+    <NAME>Самое время! - ГЗ - вжик СВО</NAME>
+    <ARTIST></ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM></ALBUM>
+    <DBID>116213</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Вжик 4.mp3.mp2</FILE_NAME>
+    <DURATION>00:00:03</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+  <ELEM PLAYER_ID="OBJID_XPLAIR" PLAYER_NAME="" SCH_ID="3" SCH_NAME="Default">
+    <BLK_TYPE>П</BLK_TYPE>
+    <TYPE>П</TYPE>
+    <NAME>Самое время! - ГЗ - 10 01 Люба Контракт</NAME>
+    <ARTIST>Володина Любовь</ARTIST>
+    <AUTHOR></AUTHOR>
+    <ALBUM>В Московской области открыт набор на контрактную службу (3 000 000 руб)</ALBUM>
+    <DBID>156940</DBID>
+    <FILE_NAME>https://cloud.mail.ru/public/FiwY/dnVkQro8o/xml/Самое время! - ГЗ - 10 01 Люба Контракт.mp3</FILE_NAME>
+    <DURATION>00:01:13</DURATION>
+    <RETRANSMISSION>0</RETRANSMISSION>
+  </ELEM>
+</ELEM_LIST>

@@ -46,6 +46,77 @@ namespace FileMonitor
             _searchKeyword = searchKeyword;
             _richTextBox = richTextBox;
             doit = true;
+
+            // Загрузка сохраненных данных при инициализации
+            LoadSavedData();
+        }
+
+        // Метод для сохранения данных
+        public void SaveData()
+        {
+            try
+            {
+                // Сохраняем _foundOccurrences вручную
+                var occurrencesLines = new List<string>();
+                foreach (var occurrence in _foundOccurrences)
+                {
+                    occurrencesLines.Add($"{occurrence.FileName}|{occurrence.StartTime:yyyy-MM-dd HH:mm:ss}|{occurrence.Name}|{occurrence.StartDate}|{occurrence.Processed}");
+                }
+                File.WriteAllLines("found_occurrences.txt", occurrencesLines);
+
+                // Сохраняем _processedFiles
+                File.WriteAllLines("processed_files.txt", _processedFiles);
+
+                UpdateDashboard("Данные успешно сохранены");
+            }
+            catch (Exception ex)
+            {
+                UpdateDashboard($"Ошибка при сохранении данных: {ex.Message}");
+            }
+        }
+
+        // Метод для загрузки сохраненных данных
+        private void LoadSavedData()
+        {
+            try
+            {
+                // Загружаем _foundOccurrences
+                if (File.Exists("found_occurrences.txt"))
+                {
+                    var lines = File.ReadAllLines("found_occurrences.txt");
+                    _foundOccurrences = new List<FoundOccurrence>();
+
+                    foreach (var line in lines)
+                    {
+                        var parts = line.Split('|');
+                        if (parts.Length >= 5)
+                        {
+                            if (DateTime.TryParse(parts[1], out DateTime startTime) &&
+                                bool.TryParse(parts[4], out bool processed))
+                            {
+                                _foundOccurrences.Add(new FoundOccurrence(parts[0], startTime, parts[2], parts[3], processed));
+                            }
+                        }
+                    }
+
+                    UpdateDashboard($"Загружено {_foundOccurrences.Count} найденных вхождений");
+                }
+
+                // Загружаем _processedFiles
+                if (File.Exists("processed_files.txt"))
+                {
+                    var fileLines = File.ReadAllLines("processed_files.txt");
+                    _processedFiles = new HashSet<string>(fileLines);
+                    UpdateDashboard($"Загружено {_processedFiles.Count} обработанных файлов");
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateDashboard($"Ошибка при загрузке данных: {ex.Message}");
+                // Инициализируем пустыми коллекциями в случае ошибки
+                _foundOccurrences = new List<FoundOccurrence>();
+                _processedFiles = new HashSet<string>();
+            }
         }
 
         // Метод для запуска мониторинга
@@ -348,8 +419,8 @@ namespace FileMonitor
         // Метод для обновления дашборда
         private void UpdateDashboard(string message)
         {
-            // Реализация вывода сообщения в дашборд
-            _richTextBox.AppendText(message + Environment.NewLine);
+            // Реализация вывода сообщения в дашборд с префиксом
+            _richTextBox.AppendText("<<lv<" + message + Environment.NewLine);
         }
 
         // Вспомогательный метод для проверки, содержит ли блок ключевое слово
@@ -369,28 +440,12 @@ namespace FileMonitor
                 }
 
                 // Парсинг блока как XML
-                var block = new XmlDocument();
-                block.LoadXml(cleanContent);
+                var doc = new XmlDocument();
+                doc.LoadXml(cleanContent);
 
-                // Поиск всех элементов ELEM
-                var elemNodes = block.SelectNodes("//ELEM");
-
-                // Проверяем, есть ли в блоке вхождения ключевого слова
-                foreach (XmlNode elem in elemNodes)
-                {
-                    var nameNode = elem.SelectSingleNode("NAME");
-                    var startTimeNode = elem.SelectSingleNode("START_TIME");
-
-                    // Проверяем, есть ли ключевое слово в NAME
-                    if (nameNode?.InnerText?.Contains(_searchKeyword) == true)
-                    {
-                        // Для BlockContainsKeyword достаточно наличия ключевого слова в NAME
-                        // Не обязательно, чтобы был START_TIME в том же элементе
-                        return true;
-                    }
-                }
-
-                return false;
+                // Рекурсивный обход всех узлов для поиска элементов NAME
+                string blockId = ExtractCommentContent(blockContent); // Извлекаем идентификатор блока для отладки
+                return SearchForKeywordInNodes(doc, _searchKeyword, blockId);
             }
             catch (XmlException)
             {
@@ -401,6 +456,60 @@ namespace FileMonitor
             {
                 return false;
             }
+        }
+
+        // Вспомогательный метод для рекурсивного поиска ключевого слова в узлах
+        private bool SearchForKeywordInNodes(XmlNode node, string keyword, string blockId = "")
+        {
+            bool found = false;
+            int nameCount = 0;
+
+            // Рекурсивный обход узлов
+            SearchForKeywordInNodesRecursive(node, keyword, ref found, ref nameCount);
+
+            // Для отладки
+            string debugMessage = !string.IsNullOrEmpty(blockId)
+                ? $"Отладка SearchForKeywordInNodes: блок '{blockId}', ищем '{keyword}', найдено NAME элементов: {nameCount}, результат: {found}"
+                : $"Отладка SearchForKeywordInNodes: ищем '{keyword}', найдено NAME элементов: {nameCount}, результат: {found}";
+            UpdateDashboard(debugMessage);
+
+            return found;
+        }
+
+        // Внутренний рекурсивный метод для поиска ключевого слова
+        private void SearchForKeywordInNodesRecursive(XmlNode node, string keyword, ref bool found, ref int nameCount)
+        {
+            if (node.NodeType == XmlNodeType.Element && node.Name == "NAME")
+            {
+                nameCount++;
+                if (node.InnerText.Contains(keyword))
+                {
+                    found = true;
+                }
+            }
+
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                SearchForKeywordInNodesRecursive(childNode, keyword, ref found, ref nameCount);
+            }
+        }
+
+        // Вспомогательный метод для подсчета элементов NAME в узле
+        private int CountNameNodes(XmlNode node)
+        {
+            int count = 0;
+
+            if (node.NodeType == XmlNodeType.Element && node.Name == "NAME")
+            {
+                count++;
+            }
+
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                count += CountNameNodes(childNode);
+            }
+
+            return count;
         }
 
         // Метод для извлечения содержимого комментария
@@ -451,5 +560,7 @@ namespace FileMonitor
 
             return newFileName;
         }
+
+
     }
 }

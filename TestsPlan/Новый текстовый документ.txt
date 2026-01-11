@@ -1,0 +1,179 @@
+1. Тесты для вложенного класса FoundOccurrence
+#	Тест	Описание	Ожидаемый результат
+1.1	FoundOccurrence_Constructor_ValidInput	Создание объекта с валидными параметрами	Объект создан, все свойства установлены корректно
+1.2	FoundOccurrence_Constructor_NullFileName	Создание с null именем файла	Свойство FileName = null
+1.3	FoundOccurrence_Constructor_EmptyName	Создание с пустым именем	Свойство Name = ""
+1.4	FoundOccurrence_Constructor_DefaultDateTime	Создание с DateTime.MinValue	Свойство StartTime = DateTime.MinValue
+1.5	FoundOccurrence_Processed_Default	Проверка значения Processed по умолчанию	Processed = false (при false в параметре)
+1.6	FoundOccurrence_Processed_True	Проверка значения Processed = true	Processed = true
+2. Тесты конструктора LiveBCast
+#	Тест	Описание	Ожидаемый результат
+2.1	Constructor_ValidParameters	Создание с валидными параметрами	Объект создан, поля инициализированы, LoadSavedData вызван
+2.2	Constructor_NullLoggerFolder	Пустой loggerFolder	Объект создан, но может вызвать исключение при работе
+2.3	Constructor_NullCopyFolder	Пустой copyFolder	Объект создан, но может вызвать исключение при работе
+2.4	Constructor_NullRichTextBox	Null richTextBox	Объект создан, UpdateDashboard будет вызывать NullReferenceException
+2.5	Constructor_CustomKeyword	Кастомное ключевое слово	_searchKeyword установлен в кастомное значение
+2.6	Constructor_DefaultKeyword	Ключевое слово по умолчанию	_searchKeyword = "прямой эфир"
+2.7	Constructor_InitializesCollections	Инициализация коллекций	_foundOccurrences и _processedFiles инициализированы
+2.8	Constructor_SetsDoitTrue	Проверка флага doit	doit = true
+3. Тесты методов SaveData и LoadSavedData
+3.1 SaveData Tests
+#	Тест	Описание	Ожидаемый результат
+3.1.1	SaveData_EmptyCollections	Сохранение пустых коллекций	Файлы созданы, содержат 0 строк
+3.1.2	SaveData_SingleOccurrence	Сохранение одного вхождения	Файл содержит одну строку с правильным форматом
+3.1.3	SaveData_MultipleOccurrences	Сохранение нескольких вхождений	Все записи сохранены в правильном формате
+3.1.4	SaveData_WithProcessedFiles	Сохранение с обработанными файлами	processed_files.txt содержит все пути
+3.1.5	SaveData_OverwriteExisting	Перезапись существующих файлов	Старые данные перезаписаны
+3.1.6	SaveData_SpecialCharactersInName	Специальные символы в имени	Данные сохранены корректно
+3.1.7	SaveData_UnicodeCharacters	Unicode символы	Данные сохранены корректно
+3.1.8	SaveData_FileWriteException	Симуляция ошибки записи	Обработка исключения, сообщение об ошибке в дашборде
+3.2 LoadSavedData Tests
+#	Тест	Описание	Ожидаемый результат
+3.2.1	LoadSavedData_FilesNotExist	Файлы не существуют	Коллекции остаются пустыми
+3.2.2	LoadSavedData_ValidOccurrenceFile	Корректный файл вхождений	Данные загружены корректно
+3.2.3	LoadSavedData_MalformedOccurrenceLine	Некорректная строка в файле	Строка пропущена, остальные загружены
+3.2.4	LoadSavedData_InvalidDateTime	Некорректная дата/время	Строка пропущена
+3.2.5	LoadSavedData_InvalidBool	Некорректное значение bool	Строка пропущена
+3.2.6	LoadSavedData_EmptyOccurrenceFile	Пустой файл вхождений	Коллекция пустая
+3.2.7	LoadSavedData_ValidProcessedFiles	Корректный файл обработанных файлов	Файлы загружены в HashSet
+3.2.8	LoadSavedData_IOException	Ошибка чтения файла	Коллекции инициализированы пустыми, ошибка в дашборде
+4. Тесты метода StartMonitoring
+#	Тест	Описание	Ожидаемый результат
+4.1	StartMonitoring_NoFiles	Запуск без файлов в папке	Цикл ожидания, обработка не выполняется
+4.2	StartMonitoring_WithNewFiles	Новые файлы соответствуют шаблону	Файлы обработаны
+4.3	StartMonitoring_WithOldFiles	Файлы старше 1 минуты	Файлы обработаны
+4.4	StartMonitoring_WithRecentFiles	Файлы новее 1 минуты	Файлы пропущены
+4.5	StartMonitoring_InvalidPattern	Файлы не соответствуют шаблону	Файлы пропущены
+4.6	StartMonitoring_AlreadyProcessed	Уже обработанные файлы	Файлы пропущены
+4.7	StartMonitoring_StopMonitoring	Вызов StopMonitoring во время работы	Цикл прерывается
+4.8	StartMonitoring_MultipleIterations	Несколько итераций цикла	Все файлы обработаны корректно
+5. Тесты метода StopMonitoring
+#	Тест	Описание	Ожидаемый результат
+5.1	StopMonitoring_SetsDoitFalse	Проверка установки флага	doit = false
+5.2	StopMonitoring_WhileMonitoring	Остановка во время мониторинга	Цикл мониторинга прерывается
+6. Тесты метода ProcessFile
+#	Тест	Описание	Ожидаемый результат
+6.1	ProcessFile_ValidXMLWithKeyword	Корректный XML с ключевым словом	Блок обработан, вхождение найдено
+6.2	ProcessFile_XMLWithoutKeyword	XML без ключевого слова	Блоки пропущены
+6.3	ProcessFile_MultipleBlocks	Несколько блоков в файле	Все блоки обработаны
+6.4	ProcessFile_ConsecutiveKeywordBlocks	Последовательные блоки с ключевым словом	Первый обработан, остальные пропущены
+6.5	ProcessFile_EmptyFile	Пустой файл	Обработка завершена без ошибок
+6.6	ProcessFile_InvalidXML	Некорректный XML	Обработка продолжается, ошибка логируется
+6.7	ProcessFile_UnauthorizedAccessException	Нет прав доступа	Ошибка логируется
+6.8	ProcessFile_IOException	Ошибка ввода-вывода	Ошибка логируется
+6.9	ProcessFile_MissingCommentEnd	Без закрывающего комментария	Блок обработан корректно
+6.10	ProcessFile_LargeFile	Большой файл	Обработка завершена успешно
+7. Тесты метода ProcessBlock
+#	Тест	Описание	Ожидаемый результат
+7.1	ProcessBlock_ValidELEMWithKeyword	ELEM с ключевым словом в NAME	Вхождение найдено и добавлено
+7.2	ProcessBlock_ELEMWithoutKeyword	ELEM без ключевого слова	Вхождение не найдено
+7.3	ProcessBlock_NoSTART_TIME	ELEM без START_TIME	Поиск в соседних элементах
+7.4	ProcessBlock_START_TIMEInPrevious	START_TIME в предыдущем элементе	Время найдено корректно
+7.5	ProcessBlock_START_TIMEInNext	START_TIME в следующем элементе	Время найдено корректно
+7.6	ProcessBlock_TimeFormatHHmmss	Формат времени HH:mm:ss	Время распарсено корректно
+7.7	ProcessBlock_TimeFormatyyyyMMddHHmmss	Формат yyyyMMdd_HHmmss	Время распарсено корректно
+7.8	ProcessBlock_NoSTART_DATE	Отсутствует START_DATE	Используется текущая дата
+7.9	ProcessBlock_DuplicateEntry	Дублирующееся вхождение	Запись пропущена
+7.10	ProcessBlock_MP3Found	MP3 файл найден	Файл переименован
+7.11	ProcessBlock_MP3NotFound	MP3 файл не найден	Сообщение в дашборд
+7.12	ProcessBlock_RoundTimeToMinutes	Округление времени	Время округлено до минут
+7.13	ProcessBlock_XmlException	Ошибка парсинга XML	Ошибка обработана
+7.14	ProcessBlock_NoELEMNodes	Отсутствуют узлы ELEM	Обработка завершена без добавления
+8. Тесты вспомогательных методов
+8.1 BlockContainsKeyword Tests
+#	Тест	Описание	Ожидаемый результат
+8.1.1	BlockContainsKeyword_ContainsKeyword	Блок содержит ключевое слово	true
+8.1.2	BlockContainsKeyword_NoKeyword	Блок без ключевого слова	false
+8.1.3	BlockContainsKeyword_MultipleNAME	Несколько элементов NAME	Проверка всех элементов
+8.1.4	BlockContainsKeyword_InvalidXML	Некорректный XML	false
+8.1.5	BlockContainsKeyword_EmptyBlock	Пустой блок	false
+8.2 SearchForKeywordInNodes Tests
+#	Тест	Описание	Ожидаемый результат
+8.2.1	SearchForKeywordInNodes_Found	Ключевое слово найдено	true
+8.2.2	SearchForKeywordInNodes_NotFound	Ключевое слово не найдено	false
+8.2.3	SearchForKeywordInNodes_NestedElements	Вложенные элементы	Рекурсивный поиск выполнен
+8.2.4	SearchForKeywordInNodes_EmptyNode	Пустой узел	false
+8.3 CountNameNodes Tests
+#	Тест	Описание	Ожидаемый результат
+8.3.1	CountNameNodes_SingleElement	Один элемент NAME	1
+8.3.2	CountNameNodes_MultipleElements	Несколько элементов NAME	Корректное количество
+8.3.3	CountNameNodes_NestedElements	Вложенные элементы NAME	Все элементы подсчитаны
+8.3.4	CountNameNodes_NoElements	Нет элементов NAME	0
+8.4 ExtractCommentContent Tests
+#	Тест	Описание	Ожидаемый результат
+8.4.1	ExtractCommentContent_ValidComment	Корректный комментарий	Содержимое комментария
+8.4.2	ExtractCommentContent_NoClosingTag	Без закрывающего тега	"неизвестный комментарий"
+8.4.3	ExtractCommentContent_EmptyComment	Пустой комментарий	"-->"
+8.5 IsDuplicateEntry Tests
+#	Тест	Описание	Ожидаемый результат
+8.5.1	IsDuplicateEntry_NoDuplicates	Нет дубликатов	false
+8.5.2	IsDuplicateEntry_ExactMatch	Точное совпадение	true
+8.5.3	IsDuplicateEntry_Within2Minutes	Разница в пределах 2 минут	true
+8.5.4	IsDuplicateEntry_Outside2Minutes	Разница более 2 минут	false
+8.5.5	IsDuplicateEntry_DifferentName	Разное имя	false
+8.5.6	IsDuplicateEntry_EmptyList	Пустой список	false
+8.6 GetUniqueFileName Tests
+#	Тест	Описание	Ожидаемый результат
+8.6.1	GetUniqueFileName_FileNotExists	Файл не существует	Исходное имя
+8.6.2	GetUniqueFileName_FileExists	Файл существует	Имя с суффиксом _1
+8.6.3	GetUniqueFileName_MultipleFilesExist	Несколько файлов с суффиксами	Имя с следующим суффиксом
+8.6.4	GetUniqueFileName_LongPath	Длинный путь	Корректное имя файла
+9. Интеграционные тесты
+#	Тест	Описание	Ожидаемый результат
+9.1	Integration_FullWorkflow	Полный цикл работы	Файлы обработаны, MP3 переименован
+9.2	Integration_SaveLoadCycle	Сохранение и загрузка данных	Данные сохранены и загружены корректно
+9.3	Integration_MultipleFilesProcessing	Обработка нескольких файлов	Все файлы обработаны
+9.4	Integration_ErrorRecovery	Восстановление после ошибки	Продолжение работы после ошибки
+10. Тесты граничных условий
+#	Тест	Описание	Ожидаемый результат
+10.1	Boundary_MaxTimeDifference	Максимальная разница времени (2 минуты)	Дубликат определён корректно
+10.2	Boundary_MinTimeDifference	Минимальная разница времени (0 минут)	Дубликат определён корректно
+10.3	Boundary_SearchIntervalStart	Начало интервала поиска MP3	Файл найден
+10.4	Boundary_SearchIntervalEnd	Конец интервала поиска MP3	Файл найден
+10.5	Boundary_LargeFileName	Очень длинное имя файла	Обработка корректна
+10.6	Boundary_SpecialCharacters	Специальные символы в путях	Обработка корректна
+11. Тесты производительности
+#	Тест	Описание	Ожидаемый результат
+11.1	Performance_LargeFileProcessing	Обработка большого файла	Время выполнения в допустимых пределах
+11.2	Performance_ManyOccurrences	Много вхождений в списке	Поиск дубликатов быстрый
+11.3	Performance_ManyProcessedFiles	Много обработанных файлов	Проверка HashSet быстрая
+12. Тесты безопасности
+#	Тест	Описание	Ожидаемый результат
+12.1	Security_PathTraversal	Попытка path traversal	Путь нормализован
+12.2	Security_XmlInjection	Попытка XML injection	Данные экранированы
+12.3	Security_FileNameInjection	Специальные символы в имени	Обработка безопасна
+Рекомендуемые инструменты
+Для реализации тестов рекомендуется использовать:
+
+xUnit или NUnit - как фреймворк для модульного тестов
+Moq - для мокирования зависимостей (RichTextBox)
+FluentAssertions - для читаемых утверждений
+Microsoft.Extensions.Logging.Abstractions - для логирования в тестах
+Покрытие кода
+Целевое покрытие кода:
+
+Минимальное: 70%
+Рекомендуемое: 85%
+Оптимальное: 95%+
+Приоритеты тестирования
+Высокий приоритет
+
+ProcessBlock
+
+ProcessFile
+
+SaveData/LoadSavedData
+
+Средний приоритет
+
+StartMonitoring
+
+Helper Methods
+
+Низкий приоритет
+
+Constructor
+
+FoundOccurrence
+
+Этот план обеспечивает всестороннее покрытие функциональности класса LiveBCast с учётом всех сценариев использования, обработки ошибок и граничных условий.

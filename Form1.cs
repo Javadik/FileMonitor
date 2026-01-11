@@ -260,8 +260,7 @@ namespace FileMonitor
 
         private void FileMonitor_Load(object sender, EventArgs e)
         {
-            // logger.Stop();
-            btStart_Click(null, null);
+            //btStart_Click(null, null);
         }
 
         private void cbLogger_Validated(object sender, EventArgs e)
@@ -315,6 +314,7 @@ namespace FileMonitor
             Properties.Settings.Default.tbLive = tbLive.Text;
 
             Properties.Settings.Default.Save();
+            liveBCast?.SaveData();
         }
 
         bool CanCreateFile(string filePath)
