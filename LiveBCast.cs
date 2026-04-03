@@ -33,6 +33,7 @@ namespace FileMonitor
         private string _loggerFolder;
         private string _copyFolder;
         private bool doit =true;
+        private readonly TimeSpan _renameDelay = TimeSpan.FromMinutes(20); // задержка перед обработкой full_playing, чтобы mp3 успел полностью сформироваться
         RichTextBox _richTextBox;
         private List<FoundOccurrence> _foundOccurrences = new List<FoundOccurrence>();
         private HashSet<string> _processedFiles = new HashSet<string>();
@@ -128,10 +129,10 @@ namespace FileMonitor
         {
             while (doit)
             {
-                // Поиск файлов за последний час с проверкой шаблона и времени
+                // Поиск файлов с проверкой шаблона и задержки перед обработкой
                 var files = Directory.GetFiles(_loggerFolder, "full_playing_*.xml")
                     .Where(file =>
-                        File.GetLastWriteTime(file) <= DateTime.Now.AddMinutes(-1) &&  //AddHours(-1) AddMinutes  DateTime.UtcNow.AddMinutes(-1)
+                        File.GetLastWriteTime(file) <= DateTime.Now - _renameDelay &&
                         System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(file), @"^full_playing_\d{8}_\d{6}\.xml$")
                     ).ToArray();
 
