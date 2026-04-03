@@ -212,7 +212,7 @@ namespace FileMonitor
                         }
 
                         File.Copy(file, newFile, true);
-                        DateTime arrivalTime = DateTime.UtcNow;
+                        DateTime arrivalTime = DateTime.Now;// UtcNow;
                         File.SetLastWriteTimeUtc(newFile, arrivalTime);
 
                         newFiles.Add($"{DateTime.Now.ToString(fmtData)} {newFile}");
