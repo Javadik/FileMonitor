@@ -25,7 +25,7 @@ namespace FileMonitor
                         if (fileInfo.LastWriteTimeUtc < DateTime.UtcNow - maxAge)
                         {
                             fileInfo.Delete();
-                            richListOld.Add($"Удаление: {file} (Последнее изменение: {fileInfo.LastWriteTime})");
+                            richListOld.Add($"Удаление: {file} (Последнее изменение: {fileInfo.LastWriteTime:dd.MM.yyyy HH:mm:ss})");
                         }
                     }
                     catch (Exception ex)

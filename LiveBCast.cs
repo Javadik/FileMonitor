@@ -167,6 +167,9 @@ namespace FileMonitor
                 var blocks = content.Split(new string[] { "<!--" }, StringSplitOptions.None);
                 UpdateDashboard($"Найдено блоков: {blocks.Length}"); // KCode edit
 
+                bool foundKeywordInFile = false;
+                bool renamedInFile = false;
+
                 // Обрабатываем все элементы массива
                 for (int i = 0; i < blocks.Length; i++)
                 {
@@ -181,6 +184,7 @@ namespace FileMonitor
                     // Проверяем, содержит ли блок ключевое слово
                     if (BlockContainsKeyword(blockContent, Path.GetFileName(filePath)))
                     {
+                        foundKeywordInFile = true;
 
 
                         // Извлекаем содержимое комментария для отображения
@@ -188,33 +192,39 @@ namespace FileMonitor
                         UpdateDashboard($"Обработка блока с вхождением <!--{commentContent}");
 
                         // Обрабатываем блок с вхождением
-                        ProcessBlock(blockContent, filePath);
+                        bool fileFound = ProcessBlock(blockContent, filePath);
 
-                        // Пропускаем все последовательные блоки с вхождениями
-                        int j = i + 1;
-                        while (j < blocks.Length)
+                        if (fileFound)
                         {
-                            // Извлекаем содержимое комментария для отображения
-                            string nextCommentContent = ExtractCommentContent(blocks[j]);
+                            renamedInFile = true;
 
-                            var nextBlockContent = "<!--" + blocks[j];
-                            if (BlockContainsKeyword(nextBlockContent, Path.GetFileName(filePath)))
+                            // Пропускаем все последовательные блоки с вхождениями только после успешного поиска файла
+                            int j = i + 1;
+                            while (j < blocks.Length)
                             {
-                                // Обрабатываем пропускаемый блок, но не выводим сообщение о пропуске
-                                //--ProcessBlock(nextBlockContent, filePath);
-                                UpdateDashboard($"Пропускаем блок с вхождением <!--{nextCommentContent}");//--: {Path.GetFileName(filePath)}");
-                                j++;
-                            }
-                            else
-                            {
-                                UpdateDashboard($"Найден блок без вхождения <!--{nextCommentContent}, продолжаем обработку");
-                                break; // Нашли блок без вхождения, выходим из цикла пропуска
-                            }
-                        }
+                                // Извлекаем содержимое комментария для отображения
+                                string nextCommentContent = ExtractCommentContent(blocks[j]);
 
-                        // Обновляем i, чтобы пропустить обработанные блоки
-                        if (j > i + 1) {
-                            i = j - 1; // Устанавливаем i на последний пропущенный блок
+                                var nextBlockContent = "<!--" + blocks[j];
+                                if (BlockContainsKeyword(nextBlockContent, Path.GetFileName(filePath)))
+                                {
+                                    // Обрабатываем пропускаемый блок, но не выводим сообщение о пропуске
+                                    //--ProcessBlock(nextBlockContent, filePath);
+                                    UpdateDashboard($"Пропускаем блок с вхождением <!--{nextCommentContent}");//--: {Path.GetFileName(filePath)}");
+                                    j++;
+                                }
+                                else
+                                {
+                                    UpdateDashboard($"Найден блок без вхождения <!--{nextCommentContent}, продолжаем обработку");
+                                    break; // Нашли блок без вхождения, выходим из цикла пропуска
+                                }
+                            }
+
+                            // Обновляем i, чтобы пропустить обработанные блоки
+                            if (j > i + 1)
+                            {
+                                i = j - 1; // Устанавливаем i на последний пропущенный блок
+                            }
                         }
                     }
                     /*--else
@@ -223,6 +233,11 @@ namespace FileMonitor
                         ProcessBlock(blockContent, filePath);
                     }
                     */
+                }
+
+                if (foundKeywordInFile && !renamedInFile)
+                {
+                    UpdateDashboard("Файл эфира не найден до конца файла");
                 }
 
                 // Удаление обработанного файла
@@ -246,7 +261,7 @@ namespace FileMonitor
         }
 
         // Обработка одного XML-блока
-        private void ProcessBlock(string blockContent, string fileName)
+        private bool ProcessBlock(string blockContent, string fileName)
         {
             try
             {
@@ -351,15 +366,14 @@ namespace FileMonitor
                     // Проверяем, есть ли уже запись с похожим временем именем в _foundOccurrences
                     if (!IsDuplicateEntry(Path.GetFileName(fileName), roundedStartTime, foundNameNode.InnerText))
                     {
-                        UpdateDashboard($"Найдено вхождение: {foundNameNode.InnerText}, время: {roundedStartTime}");
+                        UpdateDashboard($"Найдено вхождение: {foundNameNode.InnerText}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}");
 
                         // Добавляем запись в список найденных вхождений
                         _foundOccurrences.Add(new FoundOccurrence(Path.GetFileName(fileName), roundedStartTime, foundNameNode.InnerText, startDate, false));
 
                         // Поиск MP3 файла в 3-минутном интервале
                         var searchTime = roundedStartTime.AddMinutes(-1);
-                        bool fileFound = false;
-                        UpdateDashboard($"Поиск файла для: {foundNameNode.InnerText}, время: {roundedStartTime}, интервал: [{searchTime:HH-mm} - {roundedStartTime.AddMinutes(1):HH-mm}]");
+                        UpdateDashboard($"Поиск файла для: {foundNameNode.InnerText}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}, интервал: [{searchTime:HH-mm} - {roundedStartTime.AddMinutes(1):HH-mm}]");
 
                         // Получаем дату из roundedStartTime для построения пути
                         var datePart = roundedStartTime.ToString("yyyy-MM-dd");
@@ -388,32 +402,29 @@ namespace FileMonitor
 
                                 // Обновление дашборда
                                 UpdateDashboard($"Файл переименован: {Path.GetFileName(mp3File)} -> {Path.GetFileName(newFileName)}");
-                                fileFound = true;
-                                break;
+                                return true;
                             }
 
                             searchTime = searchTime.AddMinutes(1);
                         }
-
-                        // Если файл не найден
-                        if (!fileFound)
-                        {
-                            UpdateDashboard("Файл эфира не найден в указанном интервале");
-                        }
                     }
                     else
                     {
-                        UpdateDashboard($"Пропущено дублирующееся вхождение: {foundNameNode.InnerText}, время: {roundedStartTime}");
+                        UpdateDashboard($"Пропущено дублирующееся вхождение: {foundNameNode.InnerText}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}");
                     }
                 }
+
+                return false;
             }
             catch (XmlException)
             {
                 // Игнорируем ошибки парсинга XML, так как блок может быть неполным
+                return false;
             }
             catch (Exception ex)
             {
                 UpdateDashboard($"Ошибка обработки блока: {ex.Message}");
+                return false;
             }
         }
 
@@ -535,7 +546,7 @@ namespace FileMonitor
 
             foreach (var dup in duplicates)
             {
-                UpdateDashboard($"Найден дубликат: {name}, время: {startTime}, существующий: {dup.StartTime}");
+                UpdateDashboard($"Найден дубликат: {name}, время: {startTime:dd.MM.yyyy HH:mm:ss}, существующий: {dup.StartTime:dd.MM.yyyy HH:mm:ss}");
             }
 
             return duplicates.Any();

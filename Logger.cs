@@ -33,7 +33,7 @@ namespace FileMonitor
         public int timeDoCopy { get; set; } = 5; //сколько timeTimers должно произойти, чтобы отработало  Copy
         public List<string> richList { get; set; } = new List<string>();
         public DateTime _lastReadTime = DateTime.MinValue;
-        public static string fmtData = "dd/MM/yyyy hh:mm:ss";
+        public static string fmtData = "dd/MM/yyyy HH:mm:ss";
 
 
         public Logger(string wDir_,bool subDir = false):this()
