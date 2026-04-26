@@ -34,6 +34,7 @@ namespace FileMonitor
         private string _copyFolder;
         private bool doit =true;
         private readonly TimeSpan _renameDelay = TimeSpan.FromMinutes(30); // задержка перед обработкой full_playing, чтобы mp3 успел полностью сформироваться
+        private readonly TimeSpan _skipOccurrenceThreshold = TimeSpan.FromMinutes(12); // порог пропуска вхождений в рамках одного файла
         RichTextBox _richTextBox;
         private List<FoundOccurrence> _foundOccurrences = new List<FoundOccurrence>();
         private HashSet<string> _processedFiles = new HashSet<string>();
@@ -169,6 +170,7 @@ namespace FileMonitor
 
                 bool foundKeywordInFile = false;
                 bool renamedInFile = false;
+                DateTime? lastSuccessfulOccurrenceTime = null;
 
                 // Обрабатываем все элементы массива
                 for (int i = 0; i < blocks.Length; i++)
@@ -182,7 +184,9 @@ namespace FileMonitor
                     var blockContent = "<!--" + blocks[i]; // Восстанавливаем начальный комментарий
 
                     // Проверяем, содержит ли блок ключевое слово
-                    if (BlockContainsKeyword(blockContent, Path.GetFileName(filePath)))
+                    DateTime occurrenceTime;
+                    bool hasOccurrenceTime;
+                    if (BlockContainsKeyword(blockContent, Path.GetFileName(filePath), out occurrenceTime, out hasOccurrenceTime))
                     {
                         foundKeywordInFile = true;
 
@@ -191,40 +195,30 @@ namespace FileMonitor
                         string commentContent = ExtractCommentContent(blocks[i]);
                         UpdateDashboard($"Обработка блока с вхождением <!--{commentContent}");
 
+                        if (!hasOccurrenceTime)
+                        {
+                            UpdateDashboard($"Пропускаем блок с вхождением: не удалось извлечь START_TIME <!--{commentContent}");
+                            continue;
+                        }
+
+                        if (lastSuccessfulOccurrenceTime.HasValue)
+                        {
+                            var diffMinutes = Math.Abs((occurrenceTime - lastSuccessfulOccurrenceTime.Value).TotalMinutes);
+                            if (diffMinutes <= _skipOccurrenceThreshold.TotalMinutes)
+                            {
+                                UpdateDashboard($"Пропускаем блок с вхождением: разница {diffMinutes:F1} мин <= {_skipOccurrenceThreshold.TotalMinutes} мин <!--{commentContent}");
+                                continue;
+                            }
+                        }
+
                         // Обрабатываем блок с вхождением
-                        bool fileFound = ProcessBlock(blockContent, filePath);
+                        bool fileFound = ProcessBlock(blockContent, filePath, out DateTime processedOccurrenceTime);
 
                         if (fileFound)
                         {
                             renamedInFile = true;
-
-                            // Пропускаем все последовательные блоки с вхождениями только после успешного поиска файла
-                            int j = i + 1;
-                            while (j < blocks.Length)
-                            {
-                                // Извлекаем содержимое комментария для отображения
-                                string nextCommentContent = ExtractCommentContent(blocks[j]);
-
-                                var nextBlockContent = "<!--" + blocks[j];
-                                if (BlockContainsKeyword(nextBlockContent, Path.GetFileName(filePath)))
-                                {
-                                    // Обрабатываем пропускаемый блок, но не выводим сообщение о пропуске
-                                    //--ProcessBlock(nextBlockContent, filePath);
-                                    UpdateDashboard($"Пропускаем блок с вхождением <!--{nextCommentContent}");//--: {Path.GetFileName(filePath)}");
-                                    j++;
-                                }
-                                else
-                                {
-                                    UpdateDashboard($"Найден блок без вхождения <!--{nextCommentContent}, продолжаем обработку");
-                                    break; // Нашли блок без вхождения, выходим из цикла пропуска
-                                }
-                            }
-
-                            // Обновляем i, чтобы пропустить обработанные блоки
-                            if (j > i + 1)
-                            {
-                                i = j - 1; // Устанавливаем i на последний пропущенный блок
-                            }
+                            lastSuccessfulOccurrenceTime = processedOccurrenceTime;
+                            UpdateDashboard($"Обновлено время последнего успешного вхождения: {lastSuccessfulOccurrenceTime:dd.MM.yyyy HH:mm:ss}");
                         }
                     }
                     /*--else
@@ -261,8 +255,10 @@ namespace FileMonitor
         }
 
         // Обработка одного XML-блока
-        private bool ProcessBlock(string blockContent, string fileName)
+        private bool ProcessBlock(string blockContent, string fileName, out DateTime processedOccurrenceTime)
         {
+            processedOccurrenceTime = default;
+
             try
             {
                 // Удаление начального комментария перед парсингом XML
@@ -280,100 +276,22 @@ namespace FileMonitor
                 var block = new XmlDocument();
                 block.LoadXml(cleanContent);
 
-                // Поиск всех элементов ELEM
-                var elemNodes = block.SelectNodes("//ELEM");
-
-                // Проверяем, есть ли в блоке вхождения ключевого слова
-                bool hasKeyword = false;
-                XmlNode? foundNameNode = null;
-                XmlNode? foundStartTimeNode = null;
-
-                for (int i = 0; i < elemNodes.Count; i++)
+                string foundName;
+                DateTime roundedStartTime;
+                string startDate;
+                if (TryExtractOccurrenceData(block, out foundName, out roundedStartTime, out startDate))
                 {
-                    XmlNode elem = elemNodes[i];
-                    var nameNode = elem.SelectSingleNode("NAME");
-                    var startTimeNode = elem.SelectSingleNode("START_TIME");
-
-                    if (nameNode?.InnerText?.Contains(_searchKeyword) == true)
-                    {
-                        // Это элемент с ключевым словом
-                        foundNameNode = nameNode;
-
-                        // Если в этом элементе нет START_TIME, ищем в предыдущих элементах
-                        if (startTimeNode == null)
-                        {
-                            // Ищем START_TIME в предыдущих элементах
-                            for (int j = i - 1; j >= 0; j--)
-                            {
-                                var prevElem = elemNodes[j];
-                                var prevStartTimeNode = prevElem.SelectSingleNode("START_TIME");
-                                if (prevStartTimeNode != null && prevStartTimeNode.InnerText != null)
-                                {
-                                    foundStartTimeNode = prevStartTimeNode;
-                                    break;
-                                }
-                            }
-
-                            // Если не нашли в предыдущих, ищем в следующих
-                            if (foundStartTimeNode == null)
-                            {
-                                for (int j = i + 1; j < elemNodes.Count; j++)
-                                {
-                                    var nextElem = elemNodes[j];
-                                    var nextStartTimeNode = nextElem.SelectSingleNode("START_TIME");
-                                    if (nextStartTimeNode != null && nextStartTimeNode.InnerText != null)
-                                    {
-                                        foundStartTimeNode = nextStartTimeNode;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // START_TIME найден в текущем элементе
-                            foundStartTimeNode = startTimeNode;
-                        }
-
-                        hasKeyword = true;
-                        break; // Берем первый элемент, содержащий ключевое слово
-                    }
-                }
-
-                if (hasKeyword && foundNameNode?.InnerText != null && foundStartTimeNode?.InnerText != null)
-                {
-                    // Используем время из элемента с вхождением
-                    var startTimeText = foundStartTimeNode.InnerText;
-                    DateTime startTime;
-
-                    // Обработка времени в форматах "HH:mm:ss" или "yyyyMMdd_HHmmss"
-                    if (startTimeText.Contains(":"))
-                    {
-                        var datePart = block.SelectSingleNode("//START_DATE")?.InnerText ?? DateTime.Now.ToString("yyyy-MM-dd");
-                        startTime = DateTime.Parse($"{datePart} {startTimeText}");
-                    }
-                    else
-                    {
-                        startTime = DateTime.ParseExact(startTimeText, "yyyyMMdd_HHmmss", null);
-                    }
-
-                    // Округление времени до минут
-                    var roundedStartTime = new DateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute, 0);
-
-                    // Получаем дату из START_DATE
-                    var startDate = block.SelectSingleNode("//START_DATE")?.InnerText ?? DateTime.Now.ToString("yyyy-MM-dd");
-
                     // Проверяем, есть ли уже запись с похожим временем именем в _foundOccurrences
-                    if (!IsDuplicateEntry(Path.GetFileName(fileName), roundedStartTime, foundNameNode.InnerText))
+                    if (!IsDuplicateEntry(Path.GetFileName(fileName), roundedStartTime, foundName))
                     {
-                        UpdateDashboard($"Найдено вхождение: {foundNameNode.InnerText}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}");
+                        UpdateDashboard($"Найдено вхождение: {foundName}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}");
 
                         // Добавляем запись в список найденных вхождений
-                        _foundOccurrences.Add(new FoundOccurrence(Path.GetFileName(fileName), roundedStartTime, foundNameNode.InnerText, startDate, false));
+                        _foundOccurrences.Add(new FoundOccurrence(Path.GetFileName(fileName), roundedStartTime, foundName, startDate, false));
 
                         // Поиск MP3 файла в 3-минутном интервале
                         var searchTime = roundedStartTime.AddMinutes(-1);
-                        UpdateDashboard($"Поиск файла для: {foundNameNode.InnerText}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}, интервал: [{searchTime:HH-mm} - {roundedStartTime.AddMinutes(1):HH-mm}]");
+                        UpdateDashboard($"Поиск файла для: {foundName}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}, интервал: [{searchTime:HH-mm} - {roundedStartTime.AddMinutes(1):HH-mm}]");
 
                         // Получаем дату из roundedStartTime для построения пути
                         var datePart = roundedStartTime.ToString("yyyy-MM-dd");
@@ -393,7 +311,7 @@ namespace FileMonitor
                                 UpdateDashboard($"Найден файл: {mp3File}");
 
                                 // Переименование файла с проверкой на существование
-                                var newFileName = GetUniqueFileName(Path.Combine(dateFolder, foundNameNode.InnerText + ".mp3"));
+                                var newFileName = GetUniqueFileName(Path.Combine(dateFolder, foundName + ".mp3"));
                                 File.Move(mp3File, newFileName);
 
                                 // Обновляем статус обработки в списке
@@ -402,6 +320,7 @@ namespace FileMonitor
 
                                 // Обновление дашборда
                                 UpdateDashboard($"Файл переименован: {Path.GetFileName(mp3File)} -> {Path.GetFileName(newFileName)}");
+                                processedOccurrenceTime = roundedStartTime;
                                 return true;
                             }
 
@@ -410,7 +329,7 @@ namespace FileMonitor
                     }
                     else
                     {
-                        UpdateDashboard($"Пропущено дублирующееся вхождение: {foundNameNode.InnerText}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}");
+                        UpdateDashboard($"Пропущено дублирующееся вхождение: {foundName}, время: {roundedStartTime:dd.MM.yyyy HH:mm:ss}");
                     }
                 }
 
@@ -436,8 +355,11 @@ namespace FileMonitor
         }
 
         // Вспомогательный метод для проверки, содержит ли блок ключевое слово
-        private bool BlockContainsKeyword(string blockContent, string fileName)
+        private bool BlockContainsKeyword(string blockContent, string fileName, out DateTime occurrenceTime, out bool hasOccurrenceTime)
         {
+            occurrenceTime = default;
+            hasOccurrenceTime = false;
+
             try
             {
                 // Удаление начального комментария перед парсингом XML
@@ -457,7 +379,20 @@ namespace FileMonitor
 
                 // Рекурсивный обход всех узлов для поиска элементов NAME
                 string blockId = ExtractCommentContent(blockContent); // Извлекаем идентификатор блока для отладки
-                return SearchForKeywordInNodes(doc, _searchKeyword, blockId);
+                bool hasKeyword = SearchForKeywordInNodes(doc, _searchKeyword, blockId);
+                if (!hasKeyword)
+                {
+                    return false;
+                }
+
+                string foundName;
+                string startDate;
+                if (TryExtractOccurrenceData(doc, out foundName, out occurrenceTime, out startDate))
+                {
+                    hasOccurrenceTime = true;
+                }
+
+                return true;
             }
             catch (XmlException)
             {
@@ -468,6 +403,97 @@ namespace FileMonitor
             {
                 return false;
             }
+        }
+
+        // Вспомогательный метод для извлечения первого вхождения по ключевому слову и его времени
+        private bool TryExtractOccurrenceData(XmlDocument block, out string foundName, out DateTime roundedStartTime, out string startDate)
+        {
+            foundName = string.Empty;
+            roundedStartTime = default;
+            startDate = DateTime.Now.ToString("yyyy-MM-dd");
+
+            var elemNodes = block.SelectNodes("//ELEM");
+            if (elemNodes == null || elemNodes.Count == 0)
+            {
+                return false;
+            }
+
+            XmlNode foundStartTimeNode = null;
+
+            for (int i = 0; i < elemNodes.Count; i++)
+            {
+                XmlNode elem = elemNodes[i];
+                var nameNode = elem.SelectSingleNode("NAME");
+                var startTimeNode = elem.SelectSingleNode("START_TIME");
+
+                if (nameNode?.InnerText?.Contains(_searchKeyword) == true)
+                {
+                    foundName = nameNode.InnerText;
+
+                    // Если в этом элементе нет START_TIME, ищем в предыдущих элементах
+                    if (startTimeNode == null)
+                    {
+                        // Ищем START_TIME в предыдущих элементах
+                        for (int j = i - 1; j >= 0; j--)
+                        {
+                            var prevElem = elemNodes[j];
+                            var prevStartTimeNode = prevElem.SelectSingleNode("START_TIME");
+                            if (prevStartTimeNode != null && prevStartTimeNode.InnerText != null)
+                            {
+                                foundStartTimeNode = prevStartTimeNode;
+                                break;
+                            }
+                        }
+
+                        // Если не нашли в предыдущих, ищем в следующих
+                        if (foundStartTimeNode == null)
+                        {
+                            for (int j = i + 1; j < elemNodes.Count; j++)
+                            {
+                                var nextElem = elemNodes[j];
+                                var nextStartTimeNode = nextElem.SelectSingleNode("START_TIME");
+                                if (nextStartTimeNode != null && nextStartTimeNode.InnerText != null)
+                                {
+                                    foundStartTimeNode = nextStartTimeNode;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // START_TIME найден в текущем элементе
+                        foundStartTimeNode = startTimeNode;
+                    }
+
+                    break; // Берем первый элемент, содержащий ключевое слово
+                }
+            }
+
+            if (string.IsNullOrEmpty(foundName) || foundStartTimeNode?.InnerText == null)
+            {
+                return false;
+            }
+
+            // Используем время из элемента с вхождением
+            var startTimeText = foundStartTimeNode.InnerText;
+            DateTime startTime;
+
+            // Обработка времени в форматах "HH:mm:ss" или "yyyyMMdd_HHmmss"
+            if (startTimeText.Contains(":"))
+            {
+                startDate = block.SelectSingleNode("//START_DATE")?.InnerText ?? DateTime.Now.ToString("yyyy-MM-dd");
+                startTime = DateTime.Parse($"{startDate} {startTimeText}");
+            }
+            else
+            {
+                startTime = DateTime.ParseExact(startTimeText, "yyyyMMdd_HHmmss", null);
+                startDate = startTime.ToString("yyyy-MM-dd");
+            }
+
+            // Округление времени до минут
+            roundedStartTime = new DateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute, 0);
+            return true;
         }
 
         // Вспомогательный метод для рекурсивного поиска ключевого слова в узлах
