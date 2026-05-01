@@ -61,7 +61,7 @@
             // btStart
             // 
             btStart.Location = new Point(101, 19);
-            btStart.Margin = new Padding(5, 5, 5, 5);
+            btStart.Margin = new Padding(5);
             btStart.Name = "btStart";
             btStart.Size = new Size(101, 35);
             btStart.TabIndex = 0;
@@ -73,7 +73,7 @@
             // 
             btStop.Enabled = false;
             btStop.Location = new Point(263, 19);
-            btStop.Margin = new Padding(5, 5, 5, 5);
+            btStop.Margin = new Padding(5);
             btStop.Name = "btStop";
             btStop.Size = new Size(101, 35);
             btStop.TabIndex = 1;
@@ -86,7 +86,7 @@
             splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             splitContainer1.FixedPanel = FixedPanel.Panel1;
             splitContainer1.Location = new Point(0, 60);
-            splitContainer1.Margin = new Padding(5, 5, 5, 5);
+            splitContainer1.Margin = new Padding(5);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
             // 
@@ -151,7 +151,7 @@
             // tbDelay
             // 
             tbDelay.Location = new Point(23, 68);
-            tbDelay.Margin = new Padding(5, 5, 5, 5);
+            tbDelay.Margin = new Padding(5);
             tbDelay.Name = "tbDelay";
             tbDelay.Size = new Size(73, 27);
             tbDelay.TabIndex = 16;
@@ -181,7 +181,7 @@
             // tbDays
             // 
             tbDays.Location = new Point(611, 68);
-            tbDays.Margin = new Padding(5, 5, 5, 5);
+            tbDays.Margin = new Padding(5);
             tbDays.Name = "tbDays";
             tbDays.Size = new Size(73, 27);
             tbDays.TabIndex = 13;
@@ -213,7 +213,7 @@
             // 
             сbCarPlayItogReplace.FormattingEnabled = true;
             сbCarPlayItogReplace.Location = new Point(16, 281);
-            сbCarPlayItogReplace.Margin = new Padding(5, 5, 5, 5);
+            сbCarPlayItogReplace.Margin = new Padding(5);
             сbCarPlayItogReplace.Name = "сbCarPlayItogReplace";
             сbCarPlayItogReplace.Size = new Size(523, 28);
             сbCarPlayItogReplace.TabIndex = 10;
@@ -233,7 +233,7 @@
             // 
             cbCurplayItog.FormattingEnabled = true;
             cbCurplayItog.Location = new Point(611, 281);
-            cbCurplayItog.Margin = new Padding(5, 5, 5, 5);
+            cbCurplayItog.Margin = new Padding(5);
             cbCurplayItog.Name = "cbCurplayItog";
             cbCurplayItog.Size = new Size(523, 28);
             cbCurplayItog.TabIndex = 8;
@@ -253,7 +253,7 @@
             // 
             cblfCopy.FormattingEnabled = true;
             cblfCopy.Location = new Point(611, 207);
-            cblfCopy.Margin = new Padding(5, 5, 5, 5);
+            cblfCopy.Margin = new Padding(5);
             cblfCopy.Name = "cblfCopy";
             cblfCopy.Size = new Size(523, 28);
             cblfCopy.TabIndex = 6;
@@ -273,7 +273,7 @@
             // 
             cbCurplay.FormattingEnabled = true;
             cbCurplay.Location = new Point(16, 207);
-            cbCurplay.Margin = new Padding(5, 5, 5, 5);
+            cbCurplay.Margin = new Padding(5);
             cbCurplay.Name = "cbCurplay";
             cbCurplay.Size = new Size(523, 28);
             cbCurplay.TabIndex = 4;
@@ -293,7 +293,7 @@
             // 
             cblpCopy.FormattingEnabled = true;
             cblpCopy.Location = new Point(611, 139);
-            cblpCopy.Margin = new Padding(5, 5, 5, 5);
+            cblpCopy.Margin = new Padding(5);
             cblpCopy.Name = "cblpCopy";
             cblpCopy.Size = new Size(523, 28);
             cblpCopy.TabIndex = 2;
@@ -313,7 +313,7 @@
             // 
             cbLogger.FormattingEnabled = true;
             cbLogger.Location = new Point(16, 139);
-            cbLogger.Margin = new Padding(5, 5, 5, 5);
+            cbLogger.Margin = new Padding(5);
             cbLogger.Name = "cbLogger";
             cbLogger.Size = new Size(523, 28);
             cbLogger.TabIndex = 0;
@@ -323,9 +323,9 @@
             // 
             richTextBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             richTextBox1.Location = new Point(0, 0);
-            richTextBox1.Margin = new Padding(5, 5, 5, 5);
+            richTextBox1.Margin = new Padding(5);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(1153, 331);
+            richTextBox1.Size = new Size(1153, 329);
             richTextBox1.TabIndex = 1;
             richTextBox1.Text = "";
             // 
@@ -337,10 +337,10 @@
             Controls.Add(splitContainer1);
             Controls.Add(btStop);
             Controls.Add(btStart);
-            Margin = new Padding(5, 5, 5, 5);
+            Margin = new Padding(5);
             MinimumSize = new Size(1169, 460);
             Name = "FileMonitor";
-            Text = "FileMonitor 1.45";
+            Text = "FileMonitor 1.46";
             FormClosing += FileMonitor_FormClosing;
             Load += FileMonitor_Load;
             Validated += FileMonitor_Validated;

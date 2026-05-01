@@ -34,7 +34,7 @@ namespace FileMonitor
         private string _copyFolder;
         private bool doit =true;
         private readonly TimeSpan _renameDelay = TimeSpan.FromMinutes(30); // задержка перед обработкой full_playing, чтобы mp3 успел полностью сформироваться
-        private readonly TimeSpan _skipOccurrenceThreshold = TimeSpan.FromMinutes(12); // порог пропуска вхождений в рамках одного файла
+        private readonly TimeSpan _skipOccurrenceThreshold = TimeSpan.FromMinutes(8); // (12) //порог пропуска вхождений в рамках одного файла
         RichTextBox _richTextBox;
         private List<FoundOccurrence> _foundOccurrences = new List<FoundOccurrence>();
         private HashSet<string> _processedFiles = new HashSet<string>();
